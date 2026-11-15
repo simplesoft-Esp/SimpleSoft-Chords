@@ -1,12 +1,15 @@
-# Catálogo musical 0.1.0 — esquema 1
+# Catálogo musical 0.2.0 — esquema 1
 
 37 tipos, 472 posiciones. No se promete un catálogo universal de todos los acordes.
 Todas las fórmulas se reproducen completas, en temperamento igual, La4=440 Hz.
 MIDI 48 = Do3/C3; MIDI 72 = Do5/C5. Algunos fabricantes numeran las octavas de otra manera.
 
-La fundamental es siempre la altura más grave. Para una fórmula F, las fundamentales
+La tabla cuenta únicamente posiciones en estado fundamental. Para una fórmula F, las fundamentales
 válidas son todos los enteros entre 48 y 72−max(F), ambos incluidos.
-No hay inversiones, notas omitidas, octavas comprimidas ni duplicaciones.
+El constructor añade inversiones elevando por octavas las notas anteriores al bajo
+solicitado, ordenándolas y descartando las que salgan de 48–72 o no produzcan ese bajo.
+No omite notas ni comprime extensiones. La validación inicial sí admite duplicaciones
+y cambios de octava; el reconocimiento compara clases módulo 12, conservando el bajo real.
 Ninguno de los 37 tipos incluidos queda sin posiciones. Cualquier tipo futuro con
 max(F)>24 debe excluirse por no caber ni desde Do3.
 

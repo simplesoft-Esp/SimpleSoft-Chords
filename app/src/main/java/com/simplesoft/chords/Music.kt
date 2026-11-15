@@ -5,9 +5,12 @@ import kotlin.random.Random
 
 data class ChordType(val id: String, val family: String, val names: Map<String,String>, val symbol: String,
  val semitones: List<Int>, val degrees: List<Int>, val aliases: List<String>, val explanationKey: String)
-data class Position(val type: ChordType, val root: Int) {
- val notes get() = type.semitones.map { root + it }
- val key get() = "${type.id}:$root"
+data class Position(val type: ChordType, val root: Int, val inversion: Int = 0) {
+ val notes get():List<Int> {
+  val bass=type.semitones[inversion]
+  return type.semitones.mapIndexed { i,n -> root+n+if(i<inversion)((bass-n+11)/12)*12 else 0 }.sorted()
+ }
+ val key get() = "${type.id}:$root:$inversion"
  val sound get() = notes.map { it % 12 }.toSet()
 }
 class Catalog(json: String) {
@@ -72,4 +75,31 @@ object Answers {
 
 object NoteFilter {
  fun notes(white:Boolean,twoOctaves:Boolean)=(48..if(twoOctaves)72 else 59).filter{!white || it%12 in Pitch.naturals}
+}
+
+/** Pitch classes determine identity; the lowest actual MIDI note determines inversion. */
+data class Recognition(val position:Position, val bass:Int, val inversion:Int?)
+object Harmony {
+ fun classes(notes:Collection<Int>)=notes.map{Math.floorMod(it,12)}.toSet()
+ fun accepts(notes:Set<Int>, target:Position, requireBass:Boolean=false, exactVoicing:Boolean=false):Boolean =
+  if(exactVoicing) notes==target.notes.toSet() else classes(notes)==target.sound &&
+   (!requireBass || notes.minOrNull()?.rem(12)==target.notes.first()%12)
+ fun voicings(type:ChordType, rootClass:Int, inversion:Int):List<Position> {
+  if(inversion !in type.semitones.indices)return emptyList()
+  return (24..72).filter{it%12==rootClass}.map{Position(type,it,inversion)}
+   .filter{it.notes.all{n->n in 48..72} && it.notes.map{n->n%12}.distinct().size==type.semitones.size &&
+    it.notes.first()%12==(it.root+type.semitones[inversion])%12}
+ }
+ fun recognize(notes:Collection<Int>, catalog:Catalog):List<Recognition> {
+  val bass=notes.minOrNull()?:return emptyList(); val pcs=classes(notes)
+  return catalog.types.flatMap { t -> (0..11).mapNotNull { root ->
+   val p=Position(t,48+root)
+   if(p.sound!=pcs)null else Recognition(p,bass,t.semitones.indexOfFirst{(root+it)%12==bass%12}.takeIf{it>=0})
+  } }.sortedWith(compareBy<Recognition>{if(it.inversion==0)0 else 1}.thenBy{it.position.type.semitones.last()})
+ }
+ fun earOptions(target:Position,pool:List<Position>, random:Random=Random.Default):List<Position> {
+  // Every option shares the root: success depends on quality, never absolute pitch.
+  val sameRoot=pool.filter{it.root==target.root}
+  return Answers.options(target,sameRoot,true,random)
+ }
 }

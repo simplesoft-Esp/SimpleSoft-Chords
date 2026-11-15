@@ -10,11 +10,11 @@ import java.util.Locale
 import kotlin.random.Random
 
 data class Prefs(val language:String="system",val latin:Boolean=true,val labels:Boolean=true,val mode:String="chords",val activity:String="mix",val byType:Boolean=true,val white:Boolean=true,val twoOctaves:Boolean=true,val ids:Set<String> = setOf("major","minor"))
-data class Question(val position:Position?=null,val note:Int?=null,val build:Boolean=false,val options:List<Position> = emptyList()) {
+data class Question(val position:Position?=null,val note:Int?=null,val build:Boolean=false,val options:List<Position> = emptyList(), val kind:String=if(build)"build" else "ear") {
  val notes get()=position?.notes?:listOfNotNull(note)
  val family get()=position?.type?.family?:"notes"
  val key get()=position?.key?:"note:$note"
- val activity get()=if(build)"build" else "ear"
+ val activity get()=kind
 }
 data class Score(val checks:Int=0,val errors:Int=0,val solved:Int=0,val first:Int=0,val helped:Int=0)
 class TrainingModel(app:Application):AndroidViewModel(app) {
@@ -24,6 +24,29 @@ class TrainingModel(app:Application):AndroidViewModel(app) {
  val audio=PianoAudio(app)
  var prefs by mutableStateOf(loadPrefs());private set
  var question by mutableStateOf<Question?>(null);private set
+ var played by mutableStateOf(setOf<Int>());private set
+ var tool by mutableStateOf("practice");private set
+ var builderRoot by mutableStateOf(0);private set
+ var builderType by mutableStateOf("major");private set
+ var builderInversion by mutableStateOf(0);private set
+ var advanced by mutableStateOf(false);private set
+ var pending by mutableStateOf<Position?>(null);private set
+ private val heldNotes=mutableMapOf<Int,Int>()
+ val builderPosition get()=catalog.types.firstOrNull{it.id==builderType}?.let{Harmony.voicings(it,builderRoot,builderInversion).firstOrNull()}
+ val recognition get()=Harmony.recognize(played,catalog)
+ fun changeTool(value:String){audio.stopAll();heldNotes.clear();played=emptySet();tool=value}
+ fun builder(root:Int=builderRoot,type:String=builderType,inversion:Int=builderInversion){
+  builderRoot=root;builderType=type
+  val t=catalog.types.first{it.id==type}
+  val valid=t.semitones.indices.filter{Harmony.voicings(t,root,it).isNotEmpty()}
+  builderInversion=if(inversion in valid)inversion else valid.firstOrNull()?:0
+ }
+ fun changeAdvanced(value:Boolean){advanced=value;next()}
+ fun press(n:Int){
+  if(heldNotes.isEmpty())played=emptySet()
+  heldNotes[n]=(heldNotes[n]?:0)+1;played=played+n
+ }
+ fun release(n:Int){val count=(heldNotes[n]?:1)-1;if(count<=0)heldNotes.remove(n) else heldNotes[n]=count}
  var selected by mutableStateOf(setOf<Int>());private set
  var checked by mutableStateOf(false);private set
  var solved by mutableStateOf(false);private set
@@ -40,8 +63,13 @@ class TrainingModel(app:Application):AndroidViewModel(app) {
  fun t(key:String)=strings.getJSONObject(lang).optString(key,key)
  fun note(midi:Int,octave:Boolean=true)=Pitch.name(midi,prefs.latin,octave)
  fun name(p:Position,octave:Boolean=false)=note(p.root,octave)+" "+p.type.names.getValue(lang)
- fun function(p:Position,index:Int)=t("function.${p.type.degrees[index]}.${p.type.semitones[index]}")
- fun spelling(p:Position,index:Int)=Pitch.spell(p.root,p.type.semitones[index],p.type.degrees[index],prefs.latin)
+ private fun toneIndex(p:Position,index:Int)=p.type.semitones.indexOfFirst{(p.root+it)%12==p.notes[index]%12}
+ fun function(p:Position,index:Int):String {val i=toneIndex(p,index);return t("function.${p.type.degrees[i]}.${p.type.semitones[i]}")}
+ fun spelling(p:Position,index:Int):String {
+  val i=toneIndex(p,index);val semitone=p.notes[index]-p.root
+  val degree=p.type.degrees[i]+7*((semitone-p.type.semitones[i])/12)
+  return Pitch.spell(p.root,semitone,degree,prefs.latin)
+ }
  private fun loadPrefs():Prefs = runCatching {
   val j=JSONObject(disk.getString("prefs","{}")!!)
   Prefs(j.optString("language","system"),j.optBoolean("latin",true),j.optBoolean("labels",true),j.optString("mode","chords"),j.optString("activity","mix"),j.optBoolean("byType",true),j.optBoolean("white",true),j.optBoolean("twoOctaves",true),if(j.has("ids"))j.getJSONArray("ids").let{a->(0 until a.length()).map{a.getString(it)}.toSet()} else setOf("major","minor"))
@@ -65,30 +93,43 @@ class TrainingModel(app:Application):AndroidViewModel(app) {
  }
  fun resetStats(){ stats=emptyMap();disk.edit().remove("stats").apply() }
  fun next() {
-  audio.stopAll();selected=emptySet();checked=false;solved=false;errors=0;helped=false;hint=0;guide=-1;reveal=false;feedback="";marked=null
-  val positions=catalog.positions(prefs.ids)
+  audio.stopAll();heldNotes.clear();played=emptySet();selected=emptySet();checked=false;solved=false;errors=0;helped=false;hint=0;guide=-1;reveal=false;feedback="";marked=null;pending=null
+  val rawPositions=catalog.positions(prefs.ids)
+  val positions=if(prefs.activity=="ear")rawPositions.filter{Harmony.earOptions(it,rawPositions).isNotEmpty()} else rawPositions
   val notePool=NoteFilter.notes(prefs.white,prefs.twoOctaves)
   val universe=buildList { if(prefs.mode!="chords")addAll(notePool.map{"n:$it"});if(prefs.mode!="notes") addAll(positions.map{it.key}) }
   val id=bag.next(universe)
-  if(id==null){question=null;feedback="noContent";return}
+  if(id==null){question=null;feedback=if(rawPositions.isNotEmpty() && prefs.mode!="notes")"noChoices" else "noContent";return}
   if(id.startsWith("n:"))question=Question(note=id.substringAfter(':').toInt())
   else {
    val p=positions.first{it.key==id};val build=prefs.activity=="build" || (prefs.activity=="mix" && random.nextBoolean())
-   val opts=if(build)emptyList() else Answers.options(p,positions,prefs.byType)
-   question=Question(position=p,build=build,options=opts)
-   if(!build && opts.isEmpty())feedback="noChoices"
+   val kind=if(build)"build" else if(prefs.activity=="complete")"complete" else if(prefs.activity=="identify")"identify" else "ear"
+   val target=if(advanced && kind in listOf("build","complete")) {
+    val choices=p.type.semitones.indices.flatMap{Harmony.voicings(p.type,p.root%12,it)}
+    choices.randomOrNull()?:p
+   } else p
+   val keyboard=kind in listOf("build","complete")
+   val opts=if(keyboard)emptyList() else if(kind=="ear")Harmony.earOptions(target,positions) else Answers.options(target,positions,false)
+   question=Question(position=target,build=keyboard,options=opts,kind=kind)
+   if(kind=="complete")selected=setOf(target.notes.first())
+   if(!keyboard && opts.isEmpty())feedback="noChoices"
   }
  }
  fun repeat(){question?.let{audio.chord(it.notes)}}
  fun touch(midi:Int) {
   val q=question?:return
   marked=midi
-  if(q.build){selected=if(midi in selected)selected-midi else selected+midi;checked=false;feedback=""}
+  if(q.kind=="complete" && midi==q.notes.first())return
+  if(q.build && !solved){selected=if(midi in selected)selected-midi else selected+midi;checked=false;feedback=""}
   else if(q.note!=null && !solved){val ok=midi==q.note;checked=true;feedback=if(ok)"correct" else "retry";record(ok)}
  }
- fun check(){val q=question?:return;val p=q.position?:return;if(!q.build)return;val ok=Answers.exact(selected,p);checked=true;feedback=if(ok)"correct" else "retry";record(ok)}
- fun answer(p:Position){if(solved)return;val q=question?:return;val ok=if(prefs.byType)p.type.id==q.position?.type?.id else p.key==q.position?.key;feedback=if(ok)"correct" else "retry";record(ok)}
- fun clear(){selected=emptySet();checked=false;feedback="";marked=null}
+ fun check(){val q=question?:return;val p=q.position?:return;if(!q.build)return;if(solved)return;val ok=Harmony.accepts(selected,p,requireBass=advanced);checked=true;feedback=if(ok)"correct" else "retry";record(ok)}
+ fun choose(p:Position){if(!solved){pending=p;feedback=""}}
+ fun validateChoice(){if(solved)return;val p=pending?:return;val q=question?:return
+  val ok=if(q.kind=="ear")p.type.id==q.position?.type?.id else p.key==q.position?.key
+  checked=true;feedback=if(ok)"correct" else "retry";record(ok)
+ }
+ fun clear(){if(solved)return;selected=if(question?.kind=="complete")setOf(question!!.notes.first()) else emptySet();checked=false;feedback="";marked=null}
  fun help(){helped=true;hint=(hint+1).coerceAtMost(4)}
  fun solution(){helped=true;reveal=true;feedback="solutionShown"}
  fun openGuide(){helped=true;guide=0;playStep()}

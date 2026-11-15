@@ -1,8 +1,13 @@
-# SimpleSoft Chords — Android 001
+# SimpleSoft-Chords — Android 0.2.0
 
-Versión 0.1.0, versionCode 1, com.simplesoft.chords. Android 8/API 26 o superior.
+Versión 0.2.0, versionCode 2, com.simplesoft.chords. Android 8/API 26 o superior.
 Kotlin + Jetpack Compose, horizontal, 100% offline. Sin cuentas, anuncios ni permisos.
-37 tipos de acordes y conjuntos de dos notas, 472 posiciones y piano Do3–Do5.
+37 tipos de acordes y conjuntos de dos notas, 472 posiciones fundamentales más inversiones ejecutables; piano fijo Do3–Do5.
+
+Reconocimiento automático con alternativas e inversiones, constructor y cuatro actividades:
+construir, identificar, completar y oído por cualidades. Validación explícita, aciertos
+en verde, errores en azul, avance manual y pistas. Tres niveles: mayor/menor, tríadas
+y séptimas. El nivel avanzado solicita el bajo expresamente. Tema claro/oscuro del sistema.
 
 ## Abrir y compilar en Windows
 
@@ -41,7 +46,7 @@ El SM-A165F no se ha probado físicamente en este entorno.
 
 ## Archivos
 
-- `app/`: código Android, manifiesto sin permisos, logo oficial y 25 WAV.
+- `app/`: código Android, manifiesto sin permisos, logo oficial, 25 WAV originales y 25 bucles sostenidos.
 - `shared/`: catálogo, traducciones, esquemas y ejemplos para Android y futura web.
 - `docs/CATALOGO.md`: tabla de fórmulas, límites y escritura musical.
 - `docs/GUIA_ES.md` y `docs/USER_GUIDE_EN.md`: uso.
@@ -58,11 +63,20 @@ python tools\verify_assets.py
 ```
 
 Python 3 sin paquetes externos para las cinco pruebas de datos/audio.
-`make_data.py` regenera catálogo y muestras; `make_i18n.py` regenera traducciones;
-`make_contracts.py` regenera esquemas/ejemplos; `make_docs.py` regenera las guías.
+`make_data.py` regenera catálogo y muestras originales; `make_sustain.py` los bucles; `make_i18n.py` regenera traducciones;
+`make_contracts.py` regenera esquemas/ejemplos; `make_docs.py` regenera solo la tabla del catálogo.
+Las guías y el informe de pruebas se mantienen manualmente desde 0.2.0.
 No ejecutes regeneradores si has editado manualmente los archivos generados sin
 trasladar también esos cambios a sus fuentes.
 
 El timbre incluido es piano sintetizado original; no son muestras acústicas.
 La interacción, latencia, accesibilidad y apariencia real deben revisarse en el teléfono.
 No hay capturas reales si no figura una ejecución en el informe de pruebas.
+
+## Referencia SimpleSoft Converter
+
+Inspeccionado sin modificarlo. Se adapta el patrón de tema claro/oscuro del sistema,
+la selección de español/inglés con inglés de respaldo y la separación de lógica,
+estado y Compose. Se conservan el logo oficial y las herramientas Gradle que Chords
+ya compartía con Converter. No se incorpora el banner animado: no aporta valor a
+la práctica musical y ocuparía espacio del piano. No se añaden dependencias.

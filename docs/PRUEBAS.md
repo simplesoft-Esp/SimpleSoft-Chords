@@ -1,96 +1,58 @@
-# Informe Android 001 — 0.1.0 (14/11/2026)
+# Verificación 0.2.0 — 15 de noviembre de 2026
 
-## Entrega implementada
+Base: commit bbbadc7 (0.1.0). Rama: feat/android-v0.2.0. Android nativo Kotlin/Compose;
+no se ha modificado SimpleSoft-Converter ni main.
 
-Kotlin + Compose; com.simplesoft.chords; versionCode 1; minSdk 26; target/compileSdk 36.
-Piano fijo de 25 teclas Do3–Do5, modo horizontal, selección/desselección multitáctil,
-entrenamiento de notas y acordes, construcción exacta, dos variantes de reconocimiento,
-filtros, pistas progresivas, explicación guiada, castellano/inglés y notación independiente.
-Preferencias y estadísticas privadas locales con reinicio confirmado. Sin publicación web.
-37 tipos, 472 posiciones, esquemas JSON y ejemplos compartidos, 25 WAV originales.
+## Ejecutado en este entorno
 
-## Verificado mediante ejecución
+- `bash gradlew --offline testDebugUnitTest assembleDebug lintDebug`: BUILD SUCCESSFUL.
+- 13 pruebas JUnit: 7 de contratos previos y 6 nuevas de armonía, todas correctas.
+- `python3 tools/verify_assets.py`: 6 pruebas correctas.
+- `git diff --check`: correcto.
+- APK debug: com.simplesoft.chords, 0.2.0/versionCode 2, API mínima 26.
+- Lint: 0 errores, 7 avisos y 5 sugerencias; no se ocultan avisos.
 
-| Comprobación | Resultado | Evidencia |
-|---|---|---|
-| Compilación Kotlin/Android y generación de APK debug | Correcta, BUILD SUCCESSFUL | evidence/build.txt |
-| JUnit del motor musical, ejecutado por Gradle | 7 pruebas, 0 errores/fallos | evidence/kotlin-tests.xml |
-| Datos, traducciones, audio y manifiesto, Python | 5 pruebas, todas correctas | evidence/assets-tests.txt |
-| Android Lint | 0 errores; advertencias no bloqueantes detalladas en evidencia | evidence/lint.txt |
-| Firma APK de depuración | apksigner verify correcto | Verificado sobre la APK entregada |
-| Metadatos APK | 0.1.0 / 1, paquete correcto, minSdk 26, targetSdk 36 | aapt dump badging |
-| Audio empaquetado | 25 WAV, sin compresión, aptos para assets.openFd | Inspección del ZIP APK |
-| Catálogo empaquetado | 37 tipos; PNG del logo idéntico al original | Comparación de bytes APK |
-| Permisos APK | Sin micrófono, ubicación, contactos, almacenamiento ni INTERNET | aapt dump permissions |
+Evidencia de esta versión: `docs/evidence/v0.2.0/`. Los ficheros de la carpeta superior
+son evidencia histórica 0.1.0. El hash de la APK se guarda en apk-sha256.txt; una
+recompilación con otra clave debug puede generar otro hash.
 
-AndroidX añade una autorización interna signature `DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION`;
-no solicita permisos al usuario ni concede acceso a sus datos.
-La copia en nube y transferencia de datos están excluidas en el manifiesto y en
-`res/xml/data_extraction_rules.xml`, incluidas las preferencias.
+Las pruebas nuevas cubren clases de altura frente a disposición exacta; octavas y
+duplicaciones válidas; notas ausentes/sobrantes; bajo solicitado; reconocimiento de
+inversiones; alternativas simétricas y Do6/La menor séptima; todas las posiciones
+ejecutables por raíz/tipo/inversión; inversiones extendidas y distractores auditivos
+con raíz y registro idénticos. Los recursos se verifican en afinación, formato PCM,
+margen de mezcla, periodicidad y afinación de los bucles (<1 cent), ausencia de
+permisos, dos octavas y SHA-256 exacto del logo. Los 25 WAV originales no se modifican.
 
-### Alcance real de las pruebas
+Los avisos de lint corresponden a actualización disponible de org.json (solo pruebas),
+orientación fija desde Android 16, ubicación/forma del logo y tres sugerencias KTX.
+Se conserva el recurso oficial solicitado. La orientación y el tamaño en pantallas
+grandes deben revisarse porque Android 16 puede ignorar orientación fija.
 
-JUnit verifica todas las posiciones: límites MIDI, fundamental mínima, fórmula completa,
-472 combinaciones, ejemplos de Re menor/trecena y escritura enarmónica con dobles bemoles.
-Comprueba igualdad exacta, rechazo de notas ausentes y duplicaciones de octava,
-bolsa aleatoria y filtros vacíos/pequeños, las cuatro combinaciones de filtros de notas,
-y opciones auditivas sin clases de altura equivalentes para las 472 posiciones.
-Comprueba también los ejemplos JSON compartidos para la futura web.
+## Pruebas manuales pendientes en dispositivo
 
-Python recorre las fórmulas, verifica claves de ambos idiomas y todas las funciones,
-los 25 PCM y sus formatos, ausencia de clipping individual, margen teórico de mezcla de
-32 voces a ganancia 0,1, fundamental medida a menos de 3 cents del valor esperado,
-arranque/final suave de muestras, ausencia de permisos en el manifiesto fuente y hash del logo.
-No sustituye una escucha en altavoces reales ni una medición de latencia Android.
+No se ha ejecutado un emulador ni un teléfono en esta sesión. No se afirma haber
+medido latencia ni haber realizado pruebas visuales, táctiles o acústicas reales.
+Antes de distribuir, ejecutar especialmente en Samsung Galaxy A16 SM-A165F:
 
-La compilación se realizó con Gradle 8.13, AGP 8.13.0, Kotlin 2.2.0 y JDK completo 21.
-Se instaló el SDK de Android en el entorno; la primera descarga con el wrapper y el
-Java inicial falló por red y ausencia de javac. Se resolvió con distribución Gradle,
-JDK completo y proxy del entorno, sin cambiar la configuración de red del proyecto.
-La comprobación final pudo compilar con dependencias ya almacenadas y --offline.
-
-## Revisión visual y dispositivo: pendientes
-
-No se ha ejecutado la app en un dispositivo Android ni en un emulador.
-No hay capturas de pantalla reales ni maquetas presentadas como capturas.
-La revisión de interfaz es de código, medidas y lógica de distribución, no visual en ejecución.
-El logo original sí se inspeccionó visualmente antes de incorporarlo.
-No se ha conectado ni probado el Samsung Galaxy A16 SM-A165F del usuario.
-
-| Prueba manual en Galaxy A16 | Criterio de aceptación | Estado |
-|---|---|---|
-| Arranque e instalación | Abre sin error ni solicitudes de permisos | Pendiente |
-| Pantalla horizontal, ambos sentidos | 25 teclas visibles, panel superior desplazable y piano fijo | Pendiente |
-| Pulsar dos o más dedos | Cada nota suena; soltar/cancelar no deja notas activas | Pendiente |
-| Construcción | Segundo toque deselecciona; comprobar, corregir, limpiar y selección sonora funcionan | Pendiente |
-| Notas | Repetir/Do4, verde ✓ y rojo ✕, reintento y filtros funcionan | Pendiente |
-| Opciones de acordes | Variantes tipo/nombre, referencia y aviso de filtros insuficientes funcionan | Pendiente |
-| Ayudas | Cuatro pistas; guía por notas y conjunto; cerrar conserva contexto | Pendiente |
-| Idiomas y notación | Castellano/inglés/sistema; Do/Re y C/D independientes, también ayudas y errores | Pendiente |
-| Persistencia | Cerrar proceso y abrir conserva ajustes/progreso; reinicio confirmado | Pendiente |
-| Audio | Volumen útil, sin clics perceptibles ni saturación, latencia aceptable | Pendiente |
-| Interrupciones | Llamadas, otra app de audio, auriculares/Bluetooth y segundo plano silencian voces | Pendiente |
-| Accesibilidad | TalkBack, teclas virtuales, foco y texto grande | Pendiente |
-| Proporciones | Revisar 16:9, 20:9 y fuentes ampliadas; piano siempre accesible | Pendiente |
-
-## Límites conocidos y advertencias
-
-- APK firmada para depuración, no con una clave de publicación; no está publicada en ninguna tienda.
-- Audio de piano sintetizado aditivo original, no grabaciones de piano acústico.
-  Cada muestra dura 2,3 s y decae incluso manteniendo la tecla; al soltar se desvanece.
-- Hay un límite real de 32 voces. Las interrupciones detienen voces y la repetición
-  desvanece las anteriores. La respuesta del dispositivo y cambios de salida no están probados.
-- Android 16 puede ignorar el bloqueo horizontal en pantallas grandes; revisar tablets
-  y ventanas libres antes de anunciar soporte para ellas. El objetivo inicial es móvil horizontal.
-- El logo original se conserva sin alterar como icono bitmap. Lint advierte sobre su forma
-  y carpeta de densidad. No se rediseñó para silenciar esas advertencias.
-- Lint también puede señalar versiones nuevas de dependencias fijadas y recomendaciones
-  de estilo KTX/estado primitivo. Las APIs de nodos accesibles usadas para compatibilidad
-  con API 26 producen avisos de obsolescencia del compilador.
-- Distractores conservadores: con catálogos muy restringidos puede no haber una elección
-  auditiva válida. La app pide ampliar filtros o practicar construcción.
-- Cambiar ajustes inicia otra pregunta. Cerrar solo la explicación conserva la actual.
-- Estadísticas y preferencias están implementadas, pero no se ha verificado su comportamiento
-  en un proceso Android real. No hay tests instrumentados ejecutados de interfaz o persistencia.
-
-Consulta README.md para compilar e instalar, y las guías de uso para probar cada flujo.
+1. Instalar la APK y verificar las cuatro actividades en español e inglés y temas
+   claro/oscuro, con fuente grande. El piano debe permanecer visible al desplazar.
+2. Mantener un acorde al menos 10 s: sonido sostenido y teclas azules; soltar uno a
+   uno y comprobar la terminación. Probar dos dedos en la misma tecla, arrastres,
+   salida del teclado, cancelación, cambio de pregunta y cambio de herramienta.
+3. Interrumpir con otra app, apagar pantalla y volver: sin voces bloqueadas. Medir
+   latencia toque/sonido y revisar timbre, transición de liberación y volumen con
+   auriculares y altavoz. SoundPool precargado no garantiza una latencia medida.
+4. Reconocer Do mayor, su primera inversión, duplicaciones, Do6/La menor séptima y
+   séptima disminuida simétrica; conservar alternativas y la última iluminación.
+5. Construir Do mayor como Do4–Mi4–Sol4 o con duplicaciones: aceptar. Añadir Si♭:
+   «Incorrecto», azul, sin rojo. Acierto verde, sin avance automático; Siguiente manual.
+6. En Avanzado, confirmar que se muestra bajo/inversión y se rechaza el bajo distinto.
+   Completar conserva la nota proporcionada al tocarla o pulsar Limpiar.
+7. Identificar y oído: elegir no valida; pulsar Validar sí. Oído ofrece distintas
+   cualidades a la misma altura, con progresión mayor/menor → tríadas → séptimas.
+8. Contenido vacío y un solo tipo auditivo: explicación y acciones para ampliar o
+   cambiar actividad. Constructor: tipos/inversiones solo ejecutables en Do3–Do5.
+9. Pistas y guía: orden de las notas reales en las inversiones, funciones e intervalos.
+   Comprobar persistencia de preferencias/progreso y actualización desde APK 0.1.0
+   firmada con la misma clave, sin red y con TalkBack.

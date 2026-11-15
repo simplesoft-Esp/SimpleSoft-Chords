@@ -16,6 +16,12 @@ import android.view.accessibility.AccessibilityNodeProvider
 class PianoView(context:Context):View(context) {
  var model:TrainingModel?=null
  private val paint=Paint(Paint.ANTI_ALIAS_FLAG)
+ private var observedQuestion:Question?=null
+ private var observedTool=""
+ fun refresh(m:TrainingModel){
+  if(observedQuestion!==m.question || observedTool!=m.tool){releasePointers();observedQuestion=m.question;observedTool=m.tool}
+  model=m;invalidate()
+ }
  private val held=mutableMapOf<Int,Pair<Int,Int>>()
  private val whites=(48..72).filter{it%12 in Pitch.naturals}
  private val blacks=(48..72).filter{it%12 !in Pitch.naturals}
@@ -28,28 +34,26 @@ class PianoView(context:Context):View(context) {
  }
  private fun keyAt(x:Float,y:Float)=(blacks+whites).firstOrNull{bounds(it).contains(x,y)}
  override fun onDraw(canvas:Canvas) {
-  val m=model?:return;val q=m.question;val target=q?.notes?.toSet()?:emptySet()
+  val m=model?:return;val q=if(m.tool=="practice")m.question else null;val target=q?.notes?.toSet()?:emptySet()
   val guideNote=if(m.guide>=0) q?.position?.notes?.getOrNull(m.guide) else null
   for(n in whites+blacks) {
    val black=n in blacks;val r=bounds(n)
-   val correct=m.checked && q?.build==true && n in m.selected && n in target
-   val wrong=m.checked && q?.build==true && n in m.selected && n !in target
+   val correct=m.solved && ((m.tool=="practice" && n in m.selected) || (q?.build==false && n in target))
    val noteFeedback=q?.note!=null && m.checked && m.marked==n
-   val shown=(m.reveal || m.hint>=4) && n in target || guideNote==n || (m.guide==q?.notes?.size && m.guide>=0 && n in target)
+   val shown=(m.tool=="builder" && n in m.builderPosition?.notes.orEmpty()) || (m.reveal || m.hint>=4) && n in target || guideNote==n || (m.guide==q?.notes?.size && m.guide>=0 && n in target)
    paint.color=when {
-    wrong || (noteFeedback && n!=q?.note)->Color.rgb(173,55,55)
     correct || (noteFeedback && n==q?.note)->Color.rgb(38,119,76)
-    n in m.selected ->Color.rgb(42,99,153)
+    (m.tool=="practice" && n in m.selected) || n in m.played ->if(black)Color.rgb(25,74,150) else Color.rgb(66,153,235)
     shown->Color.rgb(173,117,24)
-    held.values.any{it.first==n}->Color.rgb(110,130,150)
+    held.values.any{it.first==n}->Color.rgb(42,99,153)
     black->Color.rgb(30,34,39)
     else->Color.rgb(249,249,246)
    }
    paint.style=Paint.Style.FILL;canvas.drawRect(r,paint)
    paint.style=Paint.Style.STROKE;paint.strokeWidth=2f;paint.color=Color.rgb(75,80,85);canvas.drawRect(r,paint);paint.style=Paint.Style.FILL
-   paint.color=if(black || correct || wrong || n in m.selected || shown)Color.WHITE else Color.rgb(30,34,39)
+   paint.color=if(black || correct || (m.tool=="practice" && n in m.selected) || n in m.played || shown)Color.WHITE else Color.rgb(30,34,39)
    paint.textAlign=Paint.Align.CENTER;paint.textSize=(width/15f*.24f).coerceIn(13f,30f)
-   val mark=when {wrong->"✕";correct->"✓";shown->"★";n in m.selected->"●";else->""}
+   val mark=when {correct->"✓";shown->"★";(m.tool=="practice" && n in m.selected)->"●";else->""}
    if(mark.isNotEmpty())canvas.drawText(mark,r.centerX(),r.bottom-paint.textSize*2,paint)
    if(m.prefs.labels || n%12==0)canvas.drawText(m.note(n),r.centerX(),r.bottom-paint.textSize*.55f,paint)
   }
@@ -60,14 +64,23 @@ class PianoView(context:Context):View(context) {
    MotionEvent.ACTION_DOWN,MotionEvent.ACTION_POINTER_DOWN -> {
     parent.requestDisallowInterceptTouchEvent(true)
     val i=event.actionIndex;val n=keyAt(event.getX(i),event.getY(i))
-    if(n!=null) { val stream=m.audio.down(n);held[event.getPointerId(i)]=n to stream;m.touch(n);invalidate() }
+    if(n!=null) { val first=held.values.none{it.first==n};val stream=if(first)m.audio.down(n) else held.values.first{it.first==n}.second;held[event.getPointerId(i)]=n to stream;m.press(n);if(first && m.tool=="practice")m.touch(n);invalidate() }
    }
-   MotionEvent.ACTION_UP,MotionEvent.ACTION_POINTER_UP -> { held.remove(event.getPointerId(event.actionIndex))?.let{m.audio.up(it.second)};invalidate();if(event.actionMasked==MotionEvent.ACTION_UP)performClick() }
+   MotionEvent.ACTION_UP,MotionEvent.ACTION_POINTER_UP -> { held.remove(event.getPointerId(event.actionIndex))?.let{m.release(it.first);if(held.values.none{other->other.first==it.first})m.audio.up(it.second)};invalidate();if(event.actionMasked==MotionEvent.ACTION_UP)performClick() }
+   MotionEvent.ACTION_MOVE -> {
+    for(i in 0 until event.pointerCount){
+     val id=event.getPointerId(i);val old=held[id];val n=keyAt(event.getX(i),event.getY(i))
+     if(n!=old?.first){
+      held.remove(id)?.let{m.release(it.first);if(held.values.none{other->other.first==it.first})m.audio.up(it.second)}
+      if(n!=null){val first=held.values.none{it.first==n};val stream=held.values.firstOrNull{it.first==n}?.second?:m.audio.down(n);held[id]=n to stream;m.press(n);if(first && m.tool=="practice")m.touch(n)}
+     }
+    };invalidate()
+   }
    MotionEvent.ACTION_CANCEL -> releasePointers()
   }
   return true
  }
- fun releasePointers(){val m=model;held.values.forEach{m?.audio?.up(it.second)};held.clear();invalidate()}
+ fun releasePointers(){val m=model;held.values.forEach{m?.audio?.up(it.second);m?.release(it.first)};held.clear();invalidate()}
  override fun performClick():Boolean {super.performClick();return true}
  override fun onWindowFocusChanged(hasWindowFocus:Boolean){super.onWindowFocusChanged(hasWindowFocus);if(!hasWindowFocus)releasePointers()}
  override fun onDetachedFromWindow(){releasePointers();super.onDetachedFromWindow()}
@@ -84,7 +97,7 @@ class PianoView(context:Context):View(context) {
    }
   }
   override fun performAction(id:Int,action:Int,arguments:Bundle?):Boolean {
-   if(id in 48..72 && action==AccessibilityNodeInfo.ACTION_CLICK){model?.let{it.audio.chord(listOf(id));it.touch(id)};invalidate();return true}
+   if(id in 48..72 && action==AccessibilityNodeInfo.ACTION_CLICK){model?.let{it.audio.chord(listOf(id));it.press(id);it.release(id);if(it.tool=="practice")it.touch(id)};invalidate();return true}
    return false
   }
  }

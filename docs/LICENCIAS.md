@@ -8,6 +8,11 @@ No incorporan canciones, grabaciones comerciales ni bancos de muestras de tercer
 Los WAV son síntesis aditiva determinista generada por tools/make_data.py:
 6 parciales armónicos, ataque de 6 ms, decaimiento por parcial y final suave,
 mono PCM16 a 22050 Hz, 2,3 segundos. Son reutilizables en Android y web.
+Los 25 bucles sustain_*.wav adicionales se generan con tools/make_sustain.py:
+40 períodos completos, cuatro armónicos, PCM16 mono a 22050 Hz. Son síntesis original
+bajo MIT, sin recursos externos. El redondeo del tamaño mantiene la afinación a menos
+de un cent de La4=440 Hz. Los originales piano_*.wav se conservan sin cambios.
+
 A4=440 Hz. Es un timbre sintético de tipo piano, no una grabación acústica.
 
 ## Logo oficial
