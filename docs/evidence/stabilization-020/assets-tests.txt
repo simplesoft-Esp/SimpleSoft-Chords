@@ -1,0 +1,11 @@
+test_audio_files_tuning_and_headroom (__main__.Assets.test_audio_files_tuning_and_headroom) ... ok
+test_formulas_and_all_positions (__main__.Assets.test_formulas_and_all_positions) ... ok
+test_no_permissions_and_landscape (__main__.Assets.test_no_permissions_and_landscape) ... ok
+test_reference_logo_is_exact (__main__.Assets.test_reference_logo_is_exact) ... ok
+test_sustain_tuning_period_and_headroom (__main__.Assets.test_sustain_tuning_period_and_headroom) ... ok
+test_translation_coverage (__main__.Assets.test_translation_coverage) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 1.858s
+
+OK

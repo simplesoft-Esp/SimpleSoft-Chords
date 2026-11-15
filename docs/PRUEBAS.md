@@ -1,96 +1,76 @@
-# Informe Android 001 — 0.1.0 (14/11/2026)
+# Verificación de usabilidad 0.2.0 — 15 de noviembre de 2026
 
-## Entrega implementada
+Rama feat/android-v0.2.0 de la PR #1; base de esta revisión: 1c36881. Producto 0.2.0,
+versionCode 2. No se modifica main ni ningún otro repositorio. Evidencia actual en
+`docs/evidence/usability-020/`; v0.2.0 y stabilization-020 conservan las entregas anteriores.
 
-Kotlin + Compose; com.simplesoft.chords; versionCode 1; minSdk 26; target/compileSdk 36.
-Piano fijo de 25 teclas Do3–Do5, modo horizontal, selección/desselección multitáctil,
-entrenamiento de notas y acordes, construcción exacta, dos variantes de reconocimiento,
-filtros, pistas progresivas, explicación guiada, castellano/inglés y notación independiente.
-Preferencias y estadísticas privadas locales con reinicio confirmado. Sin publicación web.
-37 tipos, 472 posiciones, esquemas JSON y ejemplos compartidos, 25 WAV originales.
+## Automatizado y ejecutado
 
-## Verificado mediante ejecución
+- `bash gradlew --offline testDebugUnitTest assembleDebug assembleDebugAndroidTest lintDebug`:
+  BUILD SUCCESSFUL. App debug y APK de pruebas instrumentadas compiladas.
+- 35 pruebas JVM, sin errores ni omisiones: MusicTest 7, HarmonyTest 6, ContrastTest 2,
+  PianoStateTest 9, LearningConfigTest 8 y PianoGeometryTest 3.
+- Estado del piano: añadir/quitar con repetición, pulsación física distinta de selección,
+  dos dedos sobre una nota, Do mayor/La menor, inversiones/octavas duplicadas, limpiar
+  todas las 25 notas, soltar sin borrar selección, tokens de eventos anteriores, 100
+  cambios rápidos de ejercicio y notificaciones de añadir/quitar a Compose.
+- Configuración: individuales/familias y accesos rápidos; codec real de persistencia
+  con IDs vacíos, filtros y Avanzado; migración de JSON anterior; generador real usando
+  solo IDs seleccionados y aplicando cambios; filtros auditivos imposibles; referencia
+  de Completar separada de selección; filtros de notas sin reducir el teclado.
+- Geometría: centros de blancas/negras en 360×180, 800×120 y 1200×300; prioridad limitada
+  al área real de negras y límites exteriores sin saltar a otra tecla. Son comprobaciones
+  numéricas, no pruebas de comodidad física ni latencia.
+- `python3 tools/verify_assets.py`: 6 pruebas correctas. WAV/bucles, afinación, margen de
+  mezcla, traducciones, logo exacto, ausencia de permisos solicitados en el manifiesto
+  fuente y orientación no forzada. No se modifica el logo ni las muestras.
+- `git diff --check`: correcto. ZIP/SHA-256 de APK y `apksigner verify` correctos;
+  certificado idéntico al debug anterior. Sigue 0.2.0, por lo que puede instalarse encima.
+- Lint: 0 errores, 7 avisos y 8 sugerencias. Avisos: org.json de pruebas, forma/ubicación
+  del logo, sugerencias KTX para Canvas y tres accesos SharedPreferences. No se suprimen.
 
-| Comprobación | Resultado | Evidencia |
-|---|---|---|
-| Compilación Kotlin/Android y generación de APK debug | Correcta, BUILD SUCCESSFUL | evidence/build.txt |
-| JUnit del motor musical, ejecutado por Gradle | 7 pruebas, 0 errores/fallos | evidence/kotlin-tests.xml |
-| Datos, traducciones, audio y manifiesto, Python | 5 pruebas, todas correctas | evidence/assets-tests.txt |
-| Android Lint | 0 errores; advertencias no bloqueantes detalladas en evidencia | evidence/lint.txt |
-| Firma APK de depuración | apksigner verify correcto | Verificado sobre la APK entregada |
-| Metadatos APK | 0.1.0 / 1, paquete correcto, minSdk 26, targetSdk 36 | aapt dump badging |
-| Audio empaquetado | 25 WAV, sin compresión, aptos para assets.openFd | Inspección del ZIP APK |
-| Catálogo empaquetado | 37 tipos; PNG del logo idéntico al original | Comparación de bytes APK |
-| Permisos APK | Sin micrófono, ubicación, contactos, almacenamiento ni INTERNET | aapt dump permissions |
+## Instrumentadas compiladas, NO ejecutadas
 
-AndroidX añade una autorización interna signature `DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION`;
-no solicita permisos al usuario ni concede acceso a sus datos.
-La copia en nube y transferencia de datos están excluidas en el manifiesto y en
-`res/xml/data_extraction_rules.xml`, incluidas las preferencias.
+Hay 16 pruebas en RecognitionScreenTest, incluyendo el recorrido MotionEvent → piano
+→ modelo → texto, selección compartida de teclas, Clear con dedos apoyados y MOVE viejo,
+limpieza en Completar, cambios rápidos de ejercicio, ambas orientaciones, controles de
+las cuatro actividades sin scroll, feedback en Completar avanzado, guardar y cancelar
+filtros individuales y accesos rápidos. La APK de tests compila; no se ha ejecutado en
+emulador ni dispositivo durante esta revisión.
 
-### Alcance real de las pruebas
+Con Android SDK, A16 conectado y autorizado, en un perfil/dispositivo de prueba:
 
-JUnit verifica todas las posiciones: límites MIDI, fundamental mínima, fórmula completa,
-472 combinaciones, ejemplos de Re menor/trecena y escritura enarmónica con dobles bemoles.
-Comprueba igualdad exacta, rechazo de notas ausentes y duplicaciones de octava,
-bolsa aleatoria y filtros vacíos/pequeños, las cuatro combinaciones de filtros de notas,
-y opciones auditivas sin clases de altura equivalentes para las 472 posiciones.
-Comprueba también los ejemplos JSON compartidos para la futura web.
+```powershell
+.\gradlew.bat connectedDebugAndroidTest
+```
 
-Python recorre las fórmulas, verifica claves de ambos idiomas y todas las funciones,
-los 25 PCM y sus formatos, ausencia de clipping individual, margen teórico de mezcla de
-32 voces a ganancia 0,1, fundamental medida a menos de 3 cents del valor esperado,
-arranque/final suave de muestras, ausencia de permisos en el manifiesto fuente y hash del logo.
-No sustituye una escucha en altavoces reales ni una medición de latencia Android.
+La suite modifica idioma, orientación, filtros y progreso local al comprobar respuestas;
+no usar un perfil con datos que deban conservarse. Ejecutar una suite UI no sustituye
+la comprobación física de la comodidad del teclado y audio.
 
-La compilación se realizó con Gradle 8.13, AGP 8.13.0, Kotlin 2.2.0 y JDK completo 21.
-Se instaló el SDK de Android en el entorno; la primera descarga con el wrapper y el
-Java inicial falló por red y ausencia de javac. Se resolvió con distribución Gradle,
-JDK completo y proxy del entorno, sin cambiar la configuración de red del proyecto.
-La comprobación final pudo compilar con dependencias ya almacenadas y --offline.
+## Pendiente en Samsung Galaxy A16 y tablets
 
-## Revisión visual y dispositivo: pendientes
+1. Instalar la nueva APK sobre la anterior: misma firma/versión, distinguir por nombre
+   usability y hash. Verificar progreso y ajustes anteriores, inicio sin selección.
+2. En todas las herramientas tocar Do3/Mi3/Sol3, soltar y volver a tocar Mi3: deja de
+   estar azul y se actualiza reconocimiento. Repetir con negras y octavas duplicadas.
+3. Limpiar con selección, tras acertar, en Completar, con pistas y con dedos apoyados:
+   ninguna selección azul permanece. Levantar y volver a pulsar funciona; movimientos
+   viejos no restauran notas. Las referencias doradas se distinguen de selección azul.
+4. Cambiar rápidamente de ejercicio/herramienta mientras hay notas pulsadas; ninguna
+   voz o nota azul se hereda. Comprobar dos dedos sobre una tecla y cambios al deslizar.
+5. En horizontal A16 comprobar las cuatro actividades, feedback Incorrecto, Completar
+   avanzado y los botones Repetir/Pista/Validar/Limpiar/Siguiente sin desplazamiento,
+   recorte ni superposición al piano. Repetir en vertical, fuente ampliada y tablet.
+6. Seleccionar individuales, familias y todos/básicos/ninguno en Ajustes; aplicar,
+   cancelar, cerrar/reabrir app y verificar los ejercicios. Filtros imposibles y vacíos
+   deben mostrar explicación y Modificar filtros. Avanzado debe conservarse.
+7. Probar Pista, Más, guía, solución, referencia Do4, escuchar selección, estadísticas,
+   reconocimiento/constructor, español/inglés y notaciones; sin funciones perdidas.
+8. Comprobar audio de notas mantenidas, volumen, latencia, interrupciones, TalkBack,
+   modo avión y modo oscuro del sistema (la app debe seguir clara).
 
-No se ha ejecutado la app en un dispositivo Android ni en un emulador.
-No hay capturas de pantalla reales ni maquetas presentadas como capturas.
-La revisión de interfaz es de código, medidas y lógica de distribución, no visual en ejecución.
-El logo original sí se inspeccionó visualmente antes de incorporarlo.
-No se ha conectado ni probado el Samsung Galaxy A16 SM-A165F del usuario.
-
-| Prueba manual en Galaxy A16 | Criterio de aceptación | Estado |
-|---|---|---|
-| Arranque e instalación | Abre sin error ni solicitudes de permisos | Pendiente |
-| Pantalla horizontal, ambos sentidos | 25 teclas visibles, panel superior desplazable y piano fijo | Pendiente |
-| Pulsar dos o más dedos | Cada nota suena; soltar/cancelar no deja notas activas | Pendiente |
-| Construcción | Segundo toque deselecciona; comprobar, corregir, limpiar y selección sonora funcionan | Pendiente |
-| Notas | Repetir/Do4, verde ✓ y rojo ✕, reintento y filtros funcionan | Pendiente |
-| Opciones de acordes | Variantes tipo/nombre, referencia y aviso de filtros insuficientes funcionan | Pendiente |
-| Ayudas | Cuatro pistas; guía por notas y conjunto; cerrar conserva contexto | Pendiente |
-| Idiomas y notación | Castellano/inglés/sistema; Do/Re y C/D independientes, también ayudas y errores | Pendiente |
-| Persistencia | Cerrar proceso y abrir conserva ajustes/progreso; reinicio confirmado | Pendiente |
-| Audio | Volumen útil, sin clics perceptibles ni saturación, latencia aceptable | Pendiente |
-| Interrupciones | Llamadas, otra app de audio, auriculares/Bluetooth y segundo plano silencian voces | Pendiente |
-| Accesibilidad | TalkBack, teclas virtuales, foco y texto grande | Pendiente |
-| Proporciones | Revisar 16:9, 20:9 y fuentes ampliadas; piano siempre accesible | Pendiente |
-
-## Límites conocidos y advertencias
-
-- APK firmada para depuración, no con una clave de publicación; no está publicada en ninguna tienda.
-- Audio de piano sintetizado aditivo original, no grabaciones de piano acústico.
-  Cada muestra dura 2,3 s y decae incluso manteniendo la tecla; al soltar se desvanece.
-- Hay un límite real de 32 voces. Las interrupciones detienen voces y la repetición
-  desvanece las anteriores. La respuesta del dispositivo y cambios de salida no están probados.
-- Android 16 puede ignorar el bloqueo horizontal en pantallas grandes; revisar tablets
-  y ventanas libres antes de anunciar soporte para ellas. El objetivo inicial es móvil horizontal.
-- El logo original se conserva sin alterar como icono bitmap. Lint advierte sobre su forma
-  y carpeta de densidad. No se rediseñó para silenciar esas advertencias.
-- Lint también puede señalar versiones nuevas de dependencias fijadas y recomendaciones
-  de estilo KTX/estado primitivo. Las APIs de nodos accesibles usadas para compatibilidad
-  con API 26 producen avisos de obsolescencia del compilador.
-- Distractores conservadores: con catálogos muy restringidos puede no haber una elección
-  auditiva válida. La app pide ampliar filtros o practicar construcción.
-- Cambiar ajustes inicia otra pregunta. Cerrar solo la explicación conserva la actual.
-- Estadísticas y preferencias están implementadas, pero no se ha verificado su comportamiento
-  en un proceso Android real. No hay tests instrumentados ejecutados de interfaz o persistencia.
-
-Consulta README.md para compilar e instalar, y las guías de uso para probar cada flujo.
+El panel de práctica ya no tiene contenedor de scroll en código. Eso NO demuestra por
+sí solo que todas las combinaciones de pantalla/fuente tengan espacio; los límites de
+controles y teclado se comprueban en la suite instrumentada aún pendiente y en físico.
+No se declara la versión estable en hardware ni se fusiona esta PR con esta evidencia.

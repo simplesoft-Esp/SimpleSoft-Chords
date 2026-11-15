@@ -1,39 +1,46 @@
-# SimpleSoft Chords — User guide
+# SimpleSoft-Chords 0.2.0 user guide
 
-Hold your phone in landscape. The fixed C3–C5 keyboard has 15 white and 10 black keys.
-Only the top training panel scrolls; the bottom half remains playable.
+Android 8+, offline, no accounts, fixed light theme. Layout adapts to portrait and
+landscape. Landscape gives wider keys on phones. The full C3–C5 piano always uses
+the available width; there is no zoom or horizontal scrolling. Menu opens recognition,
+builder, practice, settings, information and statistics.
 
-Choose Notes only, Chords only or All. Chords offers Identify by ear, Build on piano,
-or Mix both. Content contains family and individual checkboxes, Select all and
-Deselect all. Apply saves; Cancel keeps previous filters. Major and minor are selected initially.
+Tap a key to select it in blue; tap again to deselect. Key-up stops audio but keeps
+selection. Separate and simultaneous taps use the same behavior in every workspace.
+Two fingers on one key share one voice and toggle only once. Physical key state is
+independent: a held but deselected key uses an outline. Clear removes every selected
+note, including after success and in Complete, clears feedback/hints and stops audio.
+Lift any held fingers before playing again; old movement events are ignored. Each
+new exercise starts with no selected notes.
 
-For notes, listen and locate the pitch. Each press plays and checks it: ✓ correct,
-✕ incorrect. Retry freely. Repeat and reference C4 are available; absolute pitch is
-not required. Settings restricts note questions to white/all keys and C3–B3/C3–C5.
-The keyboard stays fixed and chord questions are unaffected by note filters.
+Recognition updates on both adding and removing notes and stays after release.
+Use Clear to replace the entire chord; a new gesture no longer clears automatically.
+The large name, pitches and inversion/bass remain primary. Enharmonic explanations
+and full alternatives are in Information. Octave doubles do not change identity.
+Builder preserves root, quality, inversion, playable voicings and playback. Gold
+reference keys are instructions, separate from blue user selection.
 
-For chord listening, choose an answer. Settings selects type or full name recognition.
-Equivalent pitch-class alternatives are excluded. If too few distinct answers remain,
-expand Content or choose Build. Reference C4 is available in both recognition variants.
+Menu → Settings → Learning contains mode, activity and chord filters by family,
+with individual selection and All / Basics / None shortcuts. Basics selects major,
+minor, diminished and augmented. Apply saves the draft locally; Cancel discards it.
+An empty selection remains empty. Other filters contains Advanced, white/chromatic
+single-note questions and their octave range; these never shrink the piano. Display
+contains language, notation and labels. Advanced is now also persisted. Legacy prefs
+remain readable. Start ear practice with major/minor, then expand by family.
 
-For building, the prompt states the root and octave. Tap to select (blue ●), tap again
-to play and deselect. Multiple simultaneous touches work independently. Play selection
-sounds the set; Clear removes it. Check requires the exact MIDI notes, including register,
-with no extra octave doubling. Correct notes show ✓ and extra notes ✕. Correct and retry;
-Show solution highlights target keys ★ and lists missing notes. Next changes question.
+Practice keeps the activity and exercise/session progress, instruction, answer choices,
+Repeat, Hint, Validate, Clear, Next and the piano visible, without a vertical scroll
+container or configuration controls. Invalid filters show an explanation and Edit filters.
 
-Hint reveals functions, root-relative semitones, spelled notes and keyboard keys in order.
-How it is built walks through each note, its function, distance from the root and distance
-from the previous note, then plays the full chord. Close preserves the exercise.
-Help use is recorded separately from unassisted first-try success.
+Build selects chord notes. Identify chooses a name for written pitches. Complete shows
+a supplied pitch as a gold reference, not a protected blue selection; validation combines
+that reference with the notes you select. Ear compares qualities sharing root/register,
+without requiring absolute pitch. Single-note questions also use selection and Validate.
+Errors stay blue without red; success is green and Next remains manual. Octave changes
+and valid doubles are accepted; Advanced requires the bass only when explicitly stated.
+The piano remains editable after success without counting the same exercise twice.
 
-Settings offers Spanish/English/system language, independent solfège/letter notation,
-key labels, chord recognition variant and note filters. Restore settings requires confirmation.
-Statistics tracks checks, errors, solved, error-free unassisted success and helped solutions
-by activity and family. Reset progress requires confirmation and preserves settings.
-Leaving an exercise does not mark it solved; already recorded wrong checks remain.
-There are no lives, compulsory levels, accounts or services. Uninstall deletes local data.
-
-The included timbre is an original synthesized piano, not an acoustic piano recording.
-Audio focus loss and app backgrounding stop voices. Use Repeat after returning.
-No microphone or runtime permissions are needed.
+Hint opens progressive explanations in a dialog. More keeps Play selection, C4 reference,
+How it is built (step-by-step guide) and Show solution. Answer choices lock after solving
+until Next; Clear always empties piano selection. Statistics and preferences stay on device.
+See PRUEBAS.md for automated checks and pending physical-device/layout/audio verification.

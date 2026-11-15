@@ -1,8 +1,13 @@
-# SimpleSoft Chords — Android 001
+# SimpleSoft-Chords — Android 0.2.0
 
-Versión 0.1.0, versionCode 1, com.simplesoft.chords. Android 8/API 26 o superior.
-Kotlin + Jetpack Compose, horizontal, 100% offline. Sin cuentas, anuncios ni permisos.
-37 tipos de acordes y conjuntos de dos notas, 472 posiciones y piano Do3–Do5.
+Versión 0.2.0, versionCode 2, com.simplesoft.chords. Android 8/API 26 o superior.
+Kotlin + Jetpack Compose, distribución adaptable a vertical y horizontal, 100% offline. Sin cuentas, anuncios ni permisos.
+37 tipos de acordes y conjuntos de dos notas, 472 posiciones fundamentales más inversiones ejecutables; piano fijo Do3–Do5.
+
+Reconocimiento automático con alternativas e inversiones, constructor y cuatro actividades:
+construir, identificar, completar y oído por cualidades. Validación explícita, aciertos
+en verde, errores en azul, avance manual y pistas. Selección individual de acordes agrupados por familias, con accesos todos/básicos/ninguno.
+El filtro avanzado solicita el bajo expresamente. Tema claro fijo, con fondos blancos y texto oscuro.
 
 ## Abrir y compilar en Windows
 
@@ -41,7 +46,7 @@ El SM-A165F no se ha probado físicamente en este entorno.
 
 ## Archivos
 
-- `app/`: código Android, manifiesto sin permisos, logo oficial y 25 WAV.
+- `app/`: código Android, manifiesto sin permisos, logo oficial, 25 WAV originales y 25 bucles sostenidos.
 - `shared/`: catálogo, traducciones, esquemas y ejemplos para Android y futura web.
 - `docs/CATALOGO.md`: tabla de fórmulas, límites y escritura musical.
 - `docs/GUIA_ES.md` y `docs/USER_GUIDE_EN.md`: uso.
@@ -58,11 +63,37 @@ python tools\verify_assets.py
 ```
 
 Python 3 sin paquetes externos para las cinco pruebas de datos/audio.
-`make_data.py` regenera catálogo y muestras; `make_i18n.py` regenera traducciones;
-`make_contracts.py` regenera esquemas/ejemplos; `make_docs.py` regenera las guías.
+`make_data.py` regenera catálogo y muestras originales; `make_sustain.py` los bucles; `make_i18n.py` regenera traducciones;
+`make_contracts.py` regenera esquemas/ejemplos; `make_docs.py` regenera solo la tabla del catálogo.
+Las guías y el informe de pruebas se mantienen manualmente desde 0.2.0.
 No ejecutes regeneradores si has editado manualmente los archivos generados sin
 trasladar también esos cambios a sus fuentes.
 
 El timbre incluido es piano sintetizado original; no son muestras acústicas.
 La interacción, latencia, accesibilidad y apariencia real deben revisarse en el teléfono.
 No hay capturas reales si no figura una ejecución en el informe de pruebas.
+
+## Usabilidad y estabilización 0.2.0
+
+Piano común con selección por conmutación: tocar añade/quita una nota; soltar termina
+el sonido y conserva la selección. Limpiar elimina toda selección y cancela el gesto
+activo. Cada ejercicio empieza sin notas seleccionadas. La referencia de Completar
+se presenta como instrucción dorada, no como una selección protegida.
+
+Aprendizaje muestra ejercicio/progreso, instrucción, respuestas y acciones esenciales
+sin contenedor de desplazamiento vertical. Ajustes organiza actividad, acordes por
+familias, selección todos/básicos/ninguno y filtros secundarios, con Aplicar/Cancelar.
+Más y Pista conservan las ayudas educativas sin explicaciones permanentes en práctica.
+La distribución y el piano aprovechan el espacio disponible en ambas orientaciones.
+
+Versión 0.2.0/versionCode 2, misma firma debug que las APK anteriores. Ver
+`docs/USABILIDAD_020.md` y `docs/PRUEBAS.md` para comportamiento, evidencia automatizada
+y comprobaciones pendientes en dispositivo. No se declara estable en hardware aún.
+
+## Referencia SimpleSoft Converter
+
+Inspeccionado sin modificarlo. Se adapta su paleta clara neutra (sin activar tema oscuro),
+la selección de español/inglés con inglés de respaldo y la separación de lógica,
+estado y Compose. Se conservan el logo oficial y las herramientas Gradle que Chords
+ya compartía con Converter. No se incorpora el banner animado: no aporta valor a
+la práctica musical y ocuparía espacio del piano. No se añaden dependencias.

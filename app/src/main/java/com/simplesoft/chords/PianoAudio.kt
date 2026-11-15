@@ -17,6 +17,7 @@ class PianoAudio(context:Context) {
  private val manager=context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
  private val attrs=AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_GAME).setContentType(AudioAttributes.CONTENT_TYPE_MUSIC).build()
  private val pool=SoundPool.Builder().setMaxStreams(32).setAudioAttributes(attrs).build()
+ private val sustain=mutableMapOf<Int,Int>()
  private val samples=mutableMapOf<Int,Int>();private val active=mutableSetOf<Int>()
  private var loaded=0;private var epoch=0;private var closed=false;private var focused=false
  var ready by mutableStateOf(false);private set
@@ -27,8 +28,11 @@ class PianoAudio(context:Context) {
    if(change<=0) { focused=false;stopAll() } else focused=true
   },handler).build()
  init {
-  pool.setOnLoadCompleteListener { _,_,status -> handler.post { if(status!=0) error=true else loaded++; ready=loaded==25 && !error } }
-  for(midi in 48..72) context.assets.openFd("audio/piano_$midi.wav").use { samples[midi]=pool.load(it,1) }
+  pool.setOnLoadCompleteListener { _,_,status -> handler.post { if(status!=0) error=true else loaded++; ready=loaded==50 && !error } }
+  for(midi in 48..72) {
+   context.assets.openFd("audio/piano_$midi.wav").use { samples[midi]=pool.load(it,1) }
+   context.assets.openFd("audio/sustain_$midi.wav").use { sustain[midi]=pool.load(it,1) }
+  }
  }
  private fun takeFocus():Boolean {
   if(closed || !ready)return false
@@ -36,10 +40,10 @@ class PianoAudio(context:Context) {
   focusDenied=!focused
   return focused
  }
- fun down(midi:Int):Int {
+ fun down(midi:Int, held:Boolean=true):Int {
   if(!takeFocus()) return 0
-  val stream=pool.play(samples[midi]?:return 0,.1f,.1f,1,0,1f)
-  if(stream!=0) { active+=stream;val token=epoch;handler.postDelayed({ if(token==epoch) active-=stream },2400) }
+  val stream=pool.play((if(held)sustain else samples)[midi]?:return 0,.1f,.1f,1,if(held)-1 else 0,1f)
+  if(stream!=0) { active+=stream;if(!held){val token=epoch;handler.postDelayed({ if(token==epoch) active-=stream },2400)} }
   return stream
  }
  fun up(stream:Int) {
@@ -50,7 +54,7 @@ class PianoAudio(context:Context) {
    if(step==6) {pool.stop(stream);active-=stream}
   } },step*15L)
  }
- fun chord(notes:Collection<Int>) { active.toList().forEach(::up);notes.distinct().forEach(::down) }
+ fun chord(notes:Collection<Int>) { active.toList().forEach(::up);notes.distinct().forEach{down(it,false)} }
  fun stopAll() { epoch++;active.forEach(pool::stop);active.clear() }
  fun suspendAudio() { stopAll();manager.abandonAudioFocusRequest(focus);focused=false }
  fun close() { suspendAudio();closed=true;pool.release() }

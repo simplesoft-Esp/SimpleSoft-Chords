@@ -1,78 +1,61 @@
-# Arquitectura Android y futura web
+# Arquitectura Android 0.2.0 y futura web
 
-## Android 001
+El catálogo conserva sus 37 fórmulas y versión de datos 0.1.0. El producto sigue en
+0.2.0/versionCode 2. `Position` representa raíz, inversión y MIDI real; `Harmony`
+reconoce por clases de altura y conserva el bajo/alternativas. La validación inicial
+acepta duplicaciones y octavas; el bajo se exige solo si se anuncia. `Answers.exact`
+se mantiene para los contratos históricos de disposición exacta.
 
-- `shared/catalog.json`: única fuente del catálogo, schemaVersion 1.
-- `shared/i18n.json`: textos de interfaz y funciones, schemaVersion 1.
-- `Music.kt`: catálogo, posiciones, escritura diatónica, afinación, bolsa aleatoria,
-  validación exacta y distractores. Sin dependencias Android; usa org.json.
-- `TrainingModel.kt`: estado de sesión, preferencias y estadísticas locales.
-- `PianoAudio.kt`: SoundPool, 25 PCM precargados, hasta 32 voces, foco de audio y liberación.
-- `PianoView.kt`: dibujo y hit testing negro primero, punteros independientes, teclas virtuales accesibles.
-- `MainActivity.kt`: Compose, panel superior desplazable y teclado fijo al 50%.
+## Estado compartido del piano
 
-El módulo app empaqueta `shared` como assets; no mantiene una segunda copia de los datos.
-No se ha copiado SimpleSoft Core: el pie promocional no es necesario en un teclado
-horizontal. Se mantienen logo, namespace, minSdk y herramientas compatibles con Converter 006.
-La interfaz Compose no se traslada directamente a HTML.
+`PianoState` sustituye RecognitionState y las dos selecciones antes superpuestas.
+`selected` es el único conjunto que se pinta azul en cualquier herramienta.
+`pressed` mapea identificadores de dedo a MIDI y no determina la selección.
+`down` alterna solo la primera pulsación física de una nota; `up` retira el dedo,
+sin borrar la selección. Reconocimiento deriva de selected, incluso al quitar notas.
+No se limpia automáticamente al empezar otro gesto.
 
-## Contrato musical y estados
+Limpiar y Siguiente vacían selected/pressed e incrementan generation. Los eventos
+con token anterior se ignoran: un key-up viejo no libera el dedo del ejercicio nuevo.
+PianoView sincroniza generation también antes de procesar MotionEvent, para no depender
+de que Compose ya haya recompuesto; retira las voces/admisiones anteriores y no admite
+MOVE hasta una nueva pulsación. Un cambio de tamaño libera punteros conservando selección.
+Dos dedos sobre una nota comparten stream, liberado por el último. No hay color azul
+alternativo por notas históricas; pulsación física sin selección solo marca contorno.
 
-MIDI: enteros 48..72, f=440×2^((midi−69)/12).
-Posición válida: root..root+max(formula) dentro del rango. Se suma cada semitono
-exactamente, sin inversión, omisión ni reducción módulo 12.
-Validar construcción: igualdad entre conjuntos de MIDI completos.
-Las clases módulo 12 solo se usan para evitar alternativas auditivas equivalentes.
-La bolsa baraja todas las posiciones/notas disponibles sin repetir hasta agotarlas;
-al recargar evita que la última pregunta se repita si hay otra posibilidad.
-Mezclar actividad decide oído/construcción aleatoriamente para acordes;
-las notas siempre requieren escuchar y localizar. No se garantiza igual peso por familia.
+`PianoGeometry` comparte dibujo/hit testing, negras primero en sus límites reales.
+Las negras usan 0,66 de ancho de blanca y 0,62 de altura; no se agrandan áreas invisibles
+sobre teclas vecinas. Touch slop filtra el pequeño temblor al deslizar; etiquetas
+recortadas a cada tecla y tamaño adaptado. El piano utiliza todo el ancho seguro.
+`PianoAudio` no cambia: SoundPool, hasta 32 voces, WAV/bucles originales, foco y liberación.
 
-Estado: pregunta → respuesta errónea/reintento o respuesta correcta/resuelto.
-Seleccionar/desseleccionar no evalúa construcción; Comprobar sí.
-Pista/guía/solución marcan helped antes de resolver. Contadores se guardan tras cada
-comprobación; resolver solo incrementa una vez por pregunta. first requiere cero
-errores y ninguna ayuda. Referencia y repetición sonora no se consideran ayuda penalizable.
-Siguiente y cambios de ajustes crean otra pregunta y limpian selección/ayudas.
-Cerrar guía conserva pregunta y selección. ViewModel conserva sesión en cambios de
-configuración; tras cerrar proceso se crea otra pregunta, manteniendo preferencias y progreso.
+## Aprendizaje, persistencia e interfaz
 
-Persistencia: SharedPreferences privado `chords.v1`, claves JSON `prefs` y `stats`.
-No hay copia de seguridad de Android. prefs incluye idioma, notación, etiquetas,
-modo, actividad, variante auditiva, filtro notas/octavas e IDs seleccionados.
-stats usa claves actividad/familia con checks/errors/solved/first/helped.
-Los esquemas futuros deben migrarse antes de cambiar IDs o semántica.
+`ExerciseGenerator` comparte con pruebas JVM la selección de preguntas y distractores.
+Solo usa los IDs guardados. Explica filtros sin candidatos; el modo mixto con una sola
+cualidad permite construir. Las referencias de completar están en Question.given,
+no en selected: al validar se compara selected+given. Limpiar no exceptúa ninguna tecla.
 
-## Contratos para web
+`LearningConfig.kt` contiene Prefs, ChordSelection y PrefsCodec. Se conserva el formato
+JSON v1 en SharedPreferences privado `chords.v1`: claves prefs y stats. advanced pasa
+a ser un campo persistente con false de respaldo; una selección IDs vacía se conserva.
+Ajustes usa borrador local y solo Aplicar persiste/genera otra pregunta. Cancelar no escribe.
+Familias e individuales comparten los mismos IDs; básicos son las cuatro tríadas.
+No se crean catálogos, modos ni servicios nuevos. Estadísticas previas siguen legibles.
 
-Reutilizar JSON, PNG original y 25 WAV con sus licencias. Reimplementar lógica en
-TypeScript, comprobándola con `shared/examples.json` y las mismas fórmulas.
-Los esquemas JSON versionados están en `shared/*.schema.json`.
-Separar music, exercise generator, validation, audio adapter, persistence y UI.
-No convertir Kotlin UI ni SharedPreferences a la web automáticamente.
+`TrainingModel` coordina piano, audio, preguntas, intentos, ayudas y estadísticas.
+El número de ejercicio y aciertos de sesión son progreso de sesión, sin objetivo finito
+inventado. La puntuación solo cuenta una resolución por pregunta. Validar es explícito,
+incluidas notas sueltas. Modificar teclas/limpiar no queda bloqueado al resolver.
 
-Web Audio: crear/resumir AudioContext tras una acción explícita del usuario;
-los navegadores suelen bloquear autoplay. Decodificar/preparar WAV una vez,
-reproducir con AudioBufferSourceNode y GainNode; envelope de ataque/liberación,
-limitador o ganancia conservadora, tope de voces y cancelación de fuentes viejas.
-Usar tiempo de AudioContext para notas simultáneas; no depender de setTimeout para acordes.
-Suspender/liberar voces al perder foco/visibilitychange y al cerrar vistas.
-Comprobar Safari iOS, Chrome Android y escritorio antes de publicar.
+`MainActivity` conserva menú fijo y reserva espacio de controles/feedback antes de
+asignar altura al piano. PracticePanel no tiene scroll: ejercicio/progreso, instrucción,
+opciones y FlowRow de acciones de al menos 48 dp. Filtrado/configuración solo en Ajustes;
+Pista/guía/solución en diálogo y acciones secundarias en Más. Constructor/reconocimiento,
+ajustes e información sí pueden desplazar su contenido secundario.
+No se fuerza orientación: constraints y fontScale adaptan alturas, ancho y filas.
+`AppTheme.kt` conserva paleta clara, Surface con contenido oscuro y logo intacto.
 
-Pointer Events: mapear cada pointerId a nota y fuente; capturar punteros, manejar
-pointercancel y pérdida de foco. Hit test de negras antes de blancas. Añadir ratón,
-foco accesible y mapa configurable de teclado físico con keyup y bloqueo de autorepeat.
-Mantener dos octavas en móvil horizontal y escritorio; tratar pantalla vertical con
-aviso de giro sin perder estado. El tamaño de fuente no debe tapar el piano.
-
-Guardar prefs/progreso con claves versionadas en localStorage o IndexedDB,
-validar entradas e incluir reinicio confirmado. No sincronizar con cuentas.
-PWA opcional: manifest, iconos derivados del logo aprobado y service worker con
-precaché versionada de HTML/JS/JSON/PNG/WAV. Actualizaciones atómicas, evitar mezclar
-catálogos y código de versiones distintas. Offline solo tras la primera carga completa.
-
-Para una web estática: TypeScript + Vite con build de producción, rutas relativas
-al `base` configurado, subir `dist/`. No necesita servidor API ni claves.
-Antes de publicar confirmar dominio, subruta, proveedor, acceso autorizado, HTTPS,
-MIME/cache de WAV/JSON/JS, estrategia de actualizaciones y posibilidad de SPA fallback.
-Probar instalación PWA y rutas desde subcarpeta. No se ha creado ni publicado una web.
+Para futura web: portar selección, punteros, generation, fórmulas y generador con estas
+regresiones; adaptar Web Audio, Pointer Events, persistencia y UI. JSON, WAV y marca
+con sus licencias siguen reutilizables. No se construye ni publica una web aquí.

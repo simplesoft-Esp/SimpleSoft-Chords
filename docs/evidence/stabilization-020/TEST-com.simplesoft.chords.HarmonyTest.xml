@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.simplesoft.chords.HarmonyTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-11-15T08:36:43.702Z" hostname="408ae592d671" time="0.147">
+  <properties/>
+  <testcase name="everyOfferedVoicingFitsAndHasTheRequestedBass" classname="com.simplesoft.chords.HarmonyTest" time="0.102"/>
+  <testcase name="recognitionSeparatesRootBassAndDuplicates" classname="com.simplesoft.chords.HarmonyTest" time="0.009"/>
+  <testcase name="symmetricAndSixthChordsRemainAmbiguous" classname="com.simplesoft.chords.HarmonyTest" time="0.008"/>
+  <testcase name="octaveDoublingsAndInversionCriteria" classname="com.simplesoft.chords.HarmonyTest" time="0.009"/>
+  <testcase name="extendedInversionsRaiseEveryToneAboveTheIntendedBass" classname="com.simplesoft.chords.HarmonyTest" time="0.002"/>
+  <testcase name="earDistractorsVaryQualityAtTheSameRoot" classname="com.simplesoft.chords.HarmonyTest" time="0.014"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

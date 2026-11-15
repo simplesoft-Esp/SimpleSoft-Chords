@@ -28,9 +28,17 @@ class Assets(unittest.TestCase):
     real=sum(v*math.cos(2*math.pi*f*j/rate) for j,v in enumerate(part));imag=sum(v*math.sin(2*math.pi*f*j/rate) for j,v in enumerate(part));return real*real+imag*imag
    candidates=[target*(1+s/2000) for s in range(-12,13)]
    measured=max(candidates,key=energy);self.assertLess(abs(1200*math.log2(measured/target)),3)
- def test_no_permissions_and_landscape(self):
+ def test_sustain_tuning_period_and_headroom(self):
+  for midi in range(48,73):
+   with wave.open(str(R/f'app/src/main/assets/audio/sustain_{midi}.wav')) as w:
+    rate=w.getframerate();frames=w.getnframes();a=struct.unpack('<'+'h'*frames,w.readframes(frames))
+   target=440*2**((midi-69)/12)
+   self.assertLess(abs(1200*math.log2((rate*40/frames)/target)),1)
+   self.assertLess(max(map(abs,a))/32768*32*.1,1)
+   self.assertEqual(a[0],0)
+ def test_no_permissions_and_adaptive_orientation(self):
   root=ET.parse(R/'app/src/main/AndroidManifest.xml').getroot();self.assertEqual(root.findall('uses-permission'),[])
-  a=root.find('application/activity');self.assertEqual(a.attrib['{http://schemas.android.com/apk/res/android}screenOrientation'],'sensorLandscape')
+  a=root.find('application/activity');self.assertNotIn('{http://schemas.android.com/apk/res/android}screenOrientation',a.attrib)
  def test_reference_logo_is_exact(self):
   import hashlib
   self.assertEqual(hashlib.sha256((R/'app/src/main/res/drawable/simplesoft_logo.png').read_bytes()).hexdigest(),'fb4f6a6f55e89f192aa1a0a1147340d0ecaf68745ef6300927f8e139f423cffc')
