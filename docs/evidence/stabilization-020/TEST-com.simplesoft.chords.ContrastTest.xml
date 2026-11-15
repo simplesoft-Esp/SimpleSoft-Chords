@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.simplesoft.chords.ContrastTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-11-15T08:36:43.607Z" hostname="408ae592d671" time="0.092">
+  <properties/>
+  <testcase name="everyPianoLabelMeetsNormalTextContrast" classname="com.simplesoft.chords.ContrastTest" time="0.056"/>
+  <testcase name="fixedLightThemeHasReadableEnabledText" classname="com.simplesoft.chords.ContrastTest" time="0.035"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

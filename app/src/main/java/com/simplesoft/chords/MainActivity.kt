@@ -1,10 +1,11 @@
 package com.simplesoft.chords
 
 import android.os.Bundle
+import androidx.activity.SystemBarStyle
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -15,6 +16,10 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -22,7 +27,11 @@ import androidx.compose.ui.viewinterop.AndroidView
 
 class MainActivity:ComponentActivity(){
  private val model:TrainingModel by viewModels()
- override fun onCreate(savedInstanceState:Bundle?){super.onCreate(savedInstanceState);setContent{MaterialTheme(colorScheme=if(isSystemInDarkTheme())darkColorScheme() else lightColorScheme(primary=Color(0xFF285C80))){TrainingApp(model)}}}
+ override fun onCreate(savedInstanceState:Bundle?){
+  super.onCreate(savedInstanceState)
+  enableEdgeToEdge(statusBarStyle=SystemBarStyle.light(android.graphics.Color.WHITE,android.graphics.Color.WHITE),navigationBarStyle=SystemBarStyle.light(android.graphics.Color.WHITE,android.graphics.Color.WHITE))
+  setContent{SimpleSoftTheme{TrainingApp(model)}}
+ }
  override fun onPause(){model.audio.suspendAudio();super.onPause()}
 }
 @Composable private fun Choice(label:String,options:List<Pair<String,String>>,value:String,onChange:(String)->Unit){
@@ -36,25 +45,10 @@ class MainActivity:ComponentActivity(){
  LaunchedEffect(Unit){m.next()}
  LaunchedEffect(q?.key,q?.kind,m.audio.ready,m.tool){if(m.audio.ready && q!=null && !q.build && q.kind!="identify" && m.tool=="practice")m.repeat()}
  Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).safeDrawingPadding()) {
-  // Only the upper half scrolls. The keyboard never moves with menus or explanations.
-  Column(Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()).padding(horizontal=10.dp),verticalArrangement=Arrangement.spacedBy(2.dp)){
-   Row(verticalAlignment=Alignment.CenterVertically,modifier=Modifier.fillMaxWidth()){
-    Image(painterResource(R.drawable.simplesoft_logo),"SimpleSoft",Modifier.size(32.dp))
-    Text("SimpleSoft Chords",style=MaterialTheme.typography.titleMedium,modifier=Modifier.padding(horizontal=8.dp).weight(1f))
-    TextButton(onClick={dialog="stats"}){Text(m.t("stats"))};TextButton(onClick={dialog="settings"}){Text(m.t("settings"))}
-   }
-   Choice(m.t("workspace"),listOf("practice","recognize","builder").map{it to m.t(it)},m.tool){m.changeTool(it)}
-   if(m.tool=="recognize") {
-    Text(m.t("playChord"))
-    Text(m.played.sorted().joinToString(" · "){m.note(it)})
-    Text(m.t("enharmonicNotice"),fontSize=12.sp)
-    val matches=m.recognition
-    if(matches.isEmpty())Text(m.t("unrecognized"))
-    matches.forEach { match ->
-     Text("${m.name(match.position)} · ${m.t("bass")}: ${m.note(match.bass)} · ${m.t("inversion")}: ${match.inversion?:"?"}")
-    }
-    if(matches.size>1)Text(m.t("ambiguous"))
-   }
+  // Navigation stays outside the result/piano area. Help never precedes the chord.
+  AppHeader(m,onDialog={dialog=it})
+  Column(Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()).padding(horizontal=16.dp,vertical=4.dp),verticalArrangement=Arrangement.spacedBy(4.dp)){
+   if(m.tool=="recognize")RecognitionPanel(m)
    if(m.tool=="builder")BuilderPanel(m)
    if(m.tool=="practice") {
    Row(horizontalArrangement=Arrangement.spacedBy(6.dp)){
@@ -118,12 +112,13 @@ class MainActivity:ComponentActivity(){
   }
   // Reading observable state here invalidates the Android canvas on each training update.
   val visual=listOf(m.selected,m.checked,m.marked,m.hint,m.reveal,m.guide,m.prefs,m.question,m.played,m.tool,m.builderPosition,m.solved)
-  AndroidView(factory={PianoView(it)},update={view->visual.hashCode();view.refresh(m)},modifier=Modifier.weight(1f).fillMaxWidth(),onRelease={it.releasePointers()})
+  AndroidView(factory={PianoView(it)},update={view->visual.hashCode();view.refresh(m)},modifier=Modifier.weight(1f).fillMaxWidth().testTag("piano"),onRelease={it.releasePointers()})
  }
  when(dialog){
   "content"->ContentDialog(m){dialog=""}
   "settings"->SettingsDialog(m){dialog=""}
   "stats"->StatsDialog(m){dialog=""}
+  "info"->RecognitionInfo(m){dialog=""}
  }
 }
 @Composable private fun ContentDialog(m:TrainingModel,close:()->Unit){
@@ -173,4 +168,55 @@ class MainActivity:ComponentActivity(){
   Text(m.t("inversionLesson"),fontSize=12.sp)
   Button(onClick={m.audio.chord(p.notes)},enabled=m.audio.ready){Text(m.t("repeat"))}
  }
+}
+
+@Composable private fun AppHeader(m:TrainingModel,onDialog:(String)->Unit) {
+ var open by remember{mutableStateOf(false)}
+ Row(Modifier.fillMaxWidth().padding(horizontal=12.dp),verticalAlignment=Alignment.CenterVertically){
+  Image(painterResource(R.drawable.simplesoft_logo),"SimpleSoft",Modifier.size(32.dp))
+  Text("SimpleSoft Chords",style=MaterialTheme.typography.titleMedium,modifier=Modifier.padding(horizontal=8.dp).weight(1f))
+  Box {
+   TextButton(onClick={open=true}){Text(m.t("menu"))}
+   DropdownMenu(expanded=open,onDismissRequest={open=false}){
+    listOf("recognize","builder","practice").forEach{tool->
+     DropdownMenuItem(text={Text(m.t(tool))},onClick={open=false;m.changeTool(tool)})
+    }
+    HorizontalDivider()
+    listOf("info","stats","settings").forEach{id->
+     DropdownMenuItem(text={Text(m.t(id))},onClick={open=false;onDialog(id)})
+    }
+   }
+  }
+ }
+}
+
+@Composable internal fun RecognitionPanel(m:TrainingModel) {
+ val matches=m.recognition
+ val primary=matches.firstOrNull()
+ // Read observable MIDI state directly in this composable, not only in the canvas.
+ Text(
+  text=primary?.let{m.name(it.position)}?:m.t(if(m.played.isEmpty())"playChordShort" else "unrecognized"),
+  style=MaterialTheme.typography.headlineLarge,
+  color=MaterialTheme.colorScheme.onSurface,
+  modifier=Modifier.testTag("chordName").semantics{liveRegion=LiveRegionMode.Polite}
+ )
+ if(m.played.isNotEmpty())Text(m.played.sorted().joinToString(" · "){m.note(it)},style=MaterialTheme.typography.bodyLarge,modifier=Modifier.testTag("chordNotes"))
+ if(primary?.inversion!=null && primary.inversion>0) {
+  Text("${m.t("inversion")}: ${primary.inversion} · ${m.t("bass")}: ${m.note(primary.bass)}",color=MaterialTheme.colorScheme.onSurfaceVariant,modifier=Modifier.testTag("chordInversion"))
+ }
+ if(matches.size>1)Text(m.t("alternativesInInfo"),style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant)
+}
+
+@Composable private fun RecognitionInfo(m:TrainingModel,close:()->Unit) {
+ AlertDialog(onDismissRequest=close,title={Text(m.t("info"))},text={
+  Column(Modifier.heightIn(max=280.dp).verticalScroll(rememberScrollState()),verticalArrangement=Arrangement.spacedBy(12.dp)){
+   Text(m.t("playChord"))
+   Text(m.t("enharmonicNotice"))
+   Text(m.t("inversionLesson"))
+   if(m.recognition.size>1){
+    Text(m.t("ambiguous"))
+    m.recognition.forEach{match->Text("${m.name(match.position)} · ${m.t("bass")}: ${m.note(match.bass)} · ${m.t("inversion")}: ${match.inversion?:"?"}")}
+   }
+  }
+ },confirmButton={TextButton(onClick=close){Text(m.t("close"))}})
 }

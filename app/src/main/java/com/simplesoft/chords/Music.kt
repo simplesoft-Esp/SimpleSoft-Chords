@@ -11,6 +11,7 @@ data class Position(val type: ChordType, val root: Int, val inversion: Int = 0) 
   return type.semitones.mapIndexed { i,n -> root+n+if(i<inversion)((bass-n+11)/12)*12 else 0 }.sorted()
  }
  val key get() = "${type.id}:$root:$inversion"
+ fun displayName(language:String,latin:Boolean,octave:Boolean=false)=Pitch.name(root,latin,octave)+" "+type.names.getValue(language)
  val sound get() = notes.map { it % 12 }.toSet()
 }
 class Catalog(json: String) {

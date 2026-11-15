@@ -7,7 +7,7 @@ Kotlin + Jetpack Compose, horizontal, 100% offline. Sin cuentas, anuncios ni per
 Reconocimiento automático con alternativas e inversiones, constructor y cuatro actividades:
 construir, identificar, completar y oído por cualidades. Validación explícita, aciertos
 en verde, errores en azul, avance manual y pistas. Tres niveles: mayor/menor, tríadas
-y séptimas. El nivel avanzado solicita el bajo expresamente. Tema claro/oscuro del sistema.
+y séptimas. El nivel avanzado solicita el bajo expresamente. Tema claro fijo, con fondos blancos y texto oscuro.
 
 ## Abrir y compilar en Windows
 
@@ -73,9 +73,18 @@ El timbre incluido es piano sintetizado original; no son muestras acústicas.
 La interacción, latencia, accesibilidad y apariencia real deben revisarse en el teléfono.
 No hay capturas reales si no figura una ejecución en el informe de pruebas.
 
+## Estabilización tras la prueba en Galaxy A16
+
+La pantalla inicial es reconocimiento: nombre grande, notas e inversión sobre el piano.
+Menú da acceso al constructor, aprendizaje, estadísticas, ajustes e Información y ayuda.
+La leyenda enarmónica y las alternativas detalladas ya no desplazan el nombre del acorde.
+La versión sigue siendo 0.2.0/versionCode 2; la APK corregida usa la misma firma debug.
+Consultar `docs/ESTABILIZACION_020.md` para diagnóstico y `docs/PRUEBAS.md` para evidencia,
+pruebas ejecutadas y pruebas instrumentadas/físicas pendientes.
+
 ## Referencia SimpleSoft Converter
 
-Inspeccionado sin modificarlo. Se adapta el patrón de tema claro/oscuro del sistema,
+Inspeccionado sin modificarlo. Se adapta su paleta clara neutra (sin activar tema oscuro),
 la selección de español/inglés con inglés de respaldo y la separación de lógica,
 estado y Compose. Se conservan el logo oficial y las herramientas Gradle que Chords
 ya compartía con Converter. No se incorpora el banner animado: no aporta valor a

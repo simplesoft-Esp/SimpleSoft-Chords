@@ -1,58 +1,73 @@
-# Verificación 0.2.0 — 15 de noviembre de 2026
+# Verificación de estabilización 0.2.0 — 15 de noviembre de 2026
 
-Base: commit bbbadc7 (0.1.0). Rama: feat/android-v0.2.0. Android nativo Kotlin/Compose;
-no se ha modificado SimpleSoft-Converter ni main.
+Rama de la PR #1: feat/android-v0.2.0. Base de esta corrección: 3831170.
+VersionName 0.2.0, versionCode 2; no se modifica main ni SimpleSoft Converter.
+El informe inicial está en `docs/evidence/v0.2.0/`; la evidencia nueva está separada
+en `docs/evidence/stabilization-020/`.
 
-## Ejecutado en este entorno
+## Comprobaciones automatizadas ejecutadas
 
-- `bash gradlew --offline testDebugUnitTest assembleDebug lintDebug`: BUILD SUCCESSFUL.
-- 13 pruebas JUnit: 7 de contratos previos y 6 nuevas de armonía, todas correctas.
-- `python3 tools/verify_assets.py`: 6 pruebas correctas.
+- `bash gradlew --offline testDebugUnitTest assembleDebug assembleDebugAndroidTest lintDebug`:
+  BUILD SUCCESSFUL. Genera APK debug de aplicación y APK de pruebas instrumentadas.
+- 22 pruebas JVM: 7 MusicTest, 6 HarmonyTest, 7 RecognitionStateTest, 2 ContrastTest.
+  Todas correctas, sin omisiones. Las pruebas del estado compartido cubren Do mayor,
+  La menor, primera/segunda inversión, octavas duplicadas, dedos sobre la misma nota,
+  resultado persistente tras key-up, inicio de otro gesto y notificación a Compose.
+- Los contrastes calculados de texto activo y etiquetas del piano son ≥4,5:1.
+  Tema con background/surface blancos y contenido oscuro. No equivale a probar la
+  apariencia, escalado o legibilidad completa de cada pantalla en un dispositivo.
+- `python3 tools/verify_assets.py`: 6 pruebas correctas; incluyen formato/afinación,
+  headroom, bucles, dos octavas y hash exacto del logo oficial. Muestras sin cambios.
 - `git diff --check`: correcto.
-- APK debug: com.simplesoft.chords, 0.2.0/versionCode 2, API mínima 26.
-- Lint: 0 errores, 7 avisos y 5 sugerencias; no se ocultan avisos.
+- `apksigner verify --print-certs`: APK válida y mismo certificado que la APK original
+  0.2.0 (huella en la evidencia); ZIP y SHA-256 de la APK comprobados.
+- Lint: 0 errores, 7 avisos y 5 sugerencias. Avisos: actualización de org.json de pruebas,
+  orientación fija desde Android 16, forma/ubicación del logo y tres sugerencias KTX.
 
-Evidencia de esta versión: `docs/evidence/v0.2.0/`. Los ficheros de la carpeta superior
-son evidencia histórica 0.1.0. El hash de la APK se guarda en apk-sha256.txt; una
-recompilación con otra clave debug puede generar otro hash.
+Las primeras descargas de dependencias AndroidX de pruebas requieren Internet. La
+aplicación funciona sin conexión. No se añade Robolectric al proyecto: el intento de
+prueba UI en JVM se bloqueó al obtener el runtime Android (HTTP 403 del espejo Maven).
+No se cuenta ese intento como una prueba de interfaz ejecutada.
 
-Las pruebas nuevas cubren clases de altura frente a disposición exacta; octavas y
-duplicaciones válidas; notas ausentes/sobrantes; bajo solicitado; reconocimiento de
-inversiones; alternativas simétricas y Do6/La menor séptima; todas las posiciones
-ejecutables por raíz/tipo/inversión; inversiones extendidas y distractores auditivos
-con raíz y registro idénticos. Los recursos se verifican en afinación, formato PCM,
-margen de mezcla, periodicidad y afinación de los bucles (<1 cent), ausencia de
-permisos, dos octavas y SHA-256 exacto del logo. Los 25 WAV originales no se modifican.
+## Pruebas instrumentadas preparadas, NO ejecutadas
 
-Los avisos de lint corresponden a actualización disponible de org.json (solo pruebas),
-orientación fija desde Android 16, ubicación/forma del logo y tres sugerencias KTX.
-Se conserva el recurso oficial solicitado. La orientación y el tamaño en pantallas
-grandes deben revisarse porque Android 16 puede ignorar orientación fija.
+`app/src/androidTest/.../RecognitionScreenTest.kt` contiene 7 pruebas que envían
+MotionEvent multitáctiles reales a PianoView y comprueban el texto visible en Compose:
+Do mayor, La menor, inversión con duplicaciones, cancelación/nuevo acorde, ayuda y
+navegación, dos dedos compartiendo tecla y un diseño de 640×320 dp con fuente al 130%.
+La APK de pruebas compila; no se ha ejecutado en un teléfono ni emulador en esta sesión.
 
-## Pruebas manuales pendientes en dispositivo
+Para ejecutarlas con el A16 conectado y autorizado (SDK/Gradle instalados):
 
-No se ha ejecutado un emulador ni un teléfono en esta sesión. No se afirma haber
-medido latencia ni haber realizado pruebas visuales, táctiles o acústicas reales.
-Antes de distribuir, ejecutar especialmente en Samsung Galaxy A16 SM-A165F:
+```powershell
+.\gradlew.bat connectedDebugAndroidTest
+```
 
-1. Instalar la APK y verificar las cuatro actividades en español e inglés y temas
-   claro/oscuro, con fuente grande. El piano debe permanecer visible al desplazar.
-2. Mantener un acorde al menos 10 s: sonido sostenido y teclas azules; soltar uno a
-   uno y comprobar la terminación. Probar dos dedos en la misma tecla, arrastres,
-   salida del teclado, cancelación, cambio de pregunta y cambio de herramienta.
-3. Interrumpir con otra app, apagar pantalla y volver: sin voces bloqueadas. Medir
-   latencia toque/sonido y revisar timbre, transición de liberación y volumen con
-   auriculares y altavoz. SoundPool precargado no garantiza una latencia medida.
-4. Reconocer Do mayor, su primera inversión, duplicaciones, Do6/La menor séptima y
-   séptima disminuida simétrica; conservar alternativas y la última iluminación.
-5. Construir Do mayor como Do4–Mi4–Sol4 o con duplicaciones: aceptar. Añadir Si♭:
-   «Incorrecto», azul, sin rojo. Acierto verde, sin avance automático; Siguiente manual.
-6. En Avanzado, confirmar que se muestra bajo/inversión y se rechaza el bajo distinto.
-   Completar conserva la nota proporcionada al tocarla o pulsar Limpiar.
-7. Identificar y oído: elegir no valida; pulsar Validar sí. Oído ofrece distintas
-   cualidades a la misma altura, con progresión mayor/menor → tríadas → séptimas.
-8. Contenido vacío y un solo tipo auditivo: explicación y acciones para ampliar o
-   cambiar actividad. Constructor: tipos/inversiones solo ejecutables en Do3–Do5.
-9. Pistas y guía: orden de las notas reales en las inversiones, funciones e intervalos.
-   Comprobar persistencia de preferencias/progreso y actualización desde APK 0.1.0
-   firmada con la misma clave, sin red y con TalkBack.
+Esto instala la app de depuración y el paquete de pruebas. Usa un dispositivo/perfil
+de prueba: la suite cambia a español y notación latina en los ajustes locales.
+
+## Comprobaciones físicas pendientes en Samsung Galaxy A16
+
+1. Instalar la APK corregida sobre la anterior y confirmar que se conserva el progreso.
+   La versión visible sigue siendo 0.2.0; diferenciarla por el archivo/hash del informe.
+2. En reconocimiento, tocar Do3/Mi3/Sol3: «Do mayor» debe aparecer en grande sin desplazar
+   mientras suenan, permanecer al soltar cada dedo y desaparecer al iniciar otro acorde.
+   Repetir La3/Do4/Mi4 («La menor»), Mi3/Sol3/Do4 (primera inversión) y duplicaciones.
+3. Probar 2–5 dedos, dos dedos en una tecla, deslizamiento, cancelación, pérdida de foco,
+   cambio de herramienta y retorno. Confirmar ausencia de voces bloqueadas/duplicadas.
+4. Mantener notas al menos 10 s; comprobar timbre, terminación, volumen, auriculares,
+   altavoz e interrupciones. Medir latencia toque/sonido si se requiere una cifra.
+5. Probar el teléfono en modo claro y oscuro, horizontal y fuente grande: la app debe
+   seguir clara, con nombre/notas visibles, etiquetas legibles y piano siempre accesible.
+   Comprobar menús, diálogos, opciones seleccionadas, desactivadas, pistas, verde y azul.
+6. Abrir Información (leyenda y alternativas), Estadísticas, Ajustes, Constructor y las
+   cuatro actividades desde Menú; comprobar que no se han perdido funciones.
+7. Validación básica acepta octavas y duplicaciones correctas; «Incorrecto» mantiene azul
+   sin rojo, acierto verde y avance manual. Completar conserva la nota proporcionada.
+   Avanzado exige únicamente el bajo/inversión anunciados. Probar pistas y guía.
+8. Probar nombres largos, ambigüedades, contenido vacío y filtros restrictivos, idioma
+   inglés, notación C–B, TalkBack, modo avión y Android 16/pantallas grandes si disponibles.
+
+No se declara corregido en hardware ni probado físicamente hasta completar estas
+comprobaciones con la nueva APK. La prueba A16 aportada por el usuario corresponde
+a la APK anterior y es el origen del informe de fallos.

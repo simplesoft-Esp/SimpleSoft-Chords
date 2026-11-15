@@ -24,17 +24,17 @@ class TrainingModel(app:Application):AndroidViewModel(app) {
  val audio=PianoAudio(app)
  var prefs by mutableStateOf(loadPrefs());private set
  var question by mutableStateOf<Question?>(null);private set
- var played by mutableStateOf(setOf<Int>());private set
- var tool by mutableStateOf("practice");private set
+ private val recognizer=RecognitionState(catalog)
+ val played get()=recognizer.played
+ var tool by mutableStateOf("recognize");private set
  var builderRoot by mutableStateOf(0);private set
  var builderType by mutableStateOf("major");private set
  var builderInversion by mutableStateOf(0);private set
  var advanced by mutableStateOf(false);private set
  var pending by mutableStateOf<Position?>(null);private set
- private val heldNotes=mutableMapOf<Int,Int>()
  val builderPosition get()=catalog.types.firstOrNull{it.id==builderType}?.let{Harmony.voicings(it,builderRoot,builderInversion).firstOrNull()}
- val recognition get()=Harmony.recognize(played,catalog)
- fun changeTool(value:String){audio.stopAll();heldNotes.clear();played=emptySet();tool=value}
+ val recognition get()=recognizer.matches
+ fun changeTool(value:String){audio.stopAll();recognizer.reset();tool=value}
  fun builder(root:Int=builderRoot,type:String=builderType,inversion:Int=builderInversion){
   builderRoot=root;builderType=type
   val t=catalog.types.first{it.id==type}
@@ -42,11 +42,8 @@ class TrainingModel(app:Application):AndroidViewModel(app) {
   builderInversion=if(inversion in valid)inversion else valid.firstOrNull()?:0
  }
  fun changeAdvanced(value:Boolean){advanced=value;next()}
- fun press(n:Int){
-  if(heldNotes.isEmpty())played=emptySet()
-  heldNotes[n]=(heldNotes[n]?:0)+1;played=played+n
- }
- fun release(n:Int){val count=(heldNotes[n]?:1)-1;if(count<=0)heldNotes.remove(n) else heldNotes[n]=count}
+ fun press(n:Int)=recognizer.press(n)
+ fun release(n:Int)=recognizer.release(n)
  var selected by mutableStateOf(setOf<Int>());private set
  var checked by mutableStateOf(false);private set
  var solved by mutableStateOf(false);private set
@@ -62,7 +59,7 @@ class TrainingModel(app:Application):AndroidViewModel(app) {
  val lang get()=if(prefs.language=="system") if(Locale.getDefault().language=="es")"es" else "en" else prefs.language
  fun t(key:String)=strings.getJSONObject(lang).optString(key,key)
  fun note(midi:Int,octave:Boolean=true)=Pitch.name(midi,prefs.latin,octave)
- fun name(p:Position,octave:Boolean=false)=note(p.root,octave)+" "+p.type.names.getValue(lang)
+ fun name(p:Position,octave:Boolean=false)=p.displayName(lang,prefs.latin,octave)
  private fun toneIndex(p:Position,index:Int)=p.type.semitones.indexOfFirst{(p.root+it)%12==p.notes[index]%12}
  fun function(p:Position,index:Int):String {val i=toneIndex(p,index);return t("function.${p.type.degrees[i]}.${p.type.semitones[i]}")}
  fun spelling(p:Position,index:Int):String {
@@ -93,7 +90,7 @@ class TrainingModel(app:Application):AndroidViewModel(app) {
  }
  fun resetStats(){ stats=emptyMap();disk.edit().remove("stats").apply() }
  fun next() {
-  audio.stopAll();heldNotes.clear();played=emptySet();selected=emptySet();checked=false;solved=false;errors=0;helped=false;hint=0;guide=-1;reveal=false;feedback="";marked=null;pending=null
+  audio.stopAll();recognizer.reset();selected=emptySet();checked=false;solved=false;errors=0;helped=false;hint=0;guide=-1;reveal=false;feedback="";marked=null;pending=null
   val rawPositions=catalog.positions(prefs.ids)
   val positions=if(prefs.activity=="ear")rawPositions.filter{Harmony.earOptions(it,rawPositions).isNotEmpty()} else rawPositions
   val notePool=NoteFilter.notes(prefs.white,prefs.twoOctaves)

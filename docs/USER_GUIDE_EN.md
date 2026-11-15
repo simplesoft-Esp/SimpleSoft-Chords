@@ -4,6 +4,10 @@ Android 8+, landscape, fully offline. The fixed C3–C5 piano supports multiple 
 Notes sustain while held and release when lifted. Slide to another key; two fingers
 on one key share a voice. Audio stops when the app loses focus.
 
+Recognition is the initial workspace. The chord name is shown first in large type.
+Menu in the header opens the builder, practice, statistics, settings and Information
+and help. Enharmonic explanations and full alternatives are inside Information.
+
 Choose a workspace:
 
 - Recognize chords: play overlapping notes. The last gesture remains blue after
@@ -34,7 +38,7 @@ provided action or choose another activity.
 Hint progresses through functions, intervals, note names and highlighted keys.
 How it is built walks through individual notes and the full chord. Using help is
 recorded in local activity/family statistics. Preferences and progress stay on device.
-Spanish/English, note notation and labels are configurable; the theme follows the system.
+Spanish/English, note notation and labels are configurable; the theme stays light with white backgrounds and dark text, including in system night mode.
 White-key and octave filters affect single-note questions, never the fixed piano range.
 Version 0.1.0 preferences remain readable. Workspace, builder and Advanced are session state.
 See PRUEBAS.md for automated checks and the pending physical-device verification.

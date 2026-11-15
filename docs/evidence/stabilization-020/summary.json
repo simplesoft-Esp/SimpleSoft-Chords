@@ -1,0 +1,10 @@
+{
+  "jvmTests": 22,
+  "assetsTests": 6,
+  "instrumentedTestsCompiled": 7,
+  "instrumentedTestsExecuted": 0,
+  "physicalDeviceTestsExecuted": false,
+  "versionName": "0.2.0",
+  "versionCode": 2,
+  "sameDebugSigner": true
+}

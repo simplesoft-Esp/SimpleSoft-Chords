@@ -13,6 +13,11 @@ No pliega extensiones arbitrariamente. `recognize` prueba cada raíz y fórmula,
 las coincidencias exactas de clases y calcula el bajo del MIDI mínimo. El orden
 prioriza estado fundamental y fórmulas compactas, sin asignar probabilidades.
 
+`RecognitionState` contiene las notas observables del gesto y el recuento por nota de
+punteros activos. Su resultado se calcula a partir del conjunto observable; soltar el
+último dedo conserva el acorde y el siguiente gesto lo sustituye. Lo usan el modelo
+Android y las pruebas JVM. `Position.displayName` comparte el formateo probado con la UI.
+
 `TrainingModel` administra preguntas, selección persistente, respuesta pendiente,
 resolución, pistas, preferencias y estadísticas. Construir/completar validan con botón;
 identificar/oído guardan la opción hasta Validar. La nota de completar es inmutable.
@@ -35,9 +40,13 @@ de 90 ms y cancelación de callbacks mediante epoch al detener; pérdida de foco
 pausa liberan audio. No hay micrófono ni red. La vía SoundPool precargada está pensada
 para baja latencia; su latencia real requiere medición en un dispositivo.
 
-`MainActivity`: Compose, panel superior desplazable y piano fijo al 50%, selector de
-herramientas, opciones ejecutables, pistas, tema del sistema y traducciones ES/EN.
-Se adapta de Converter el patrón claro/oscuro, la política ES/EN y la separación de
+`MainActivity`: Compose, panel superior desplazable y piano fijo al 50%, menú de herramientas y diálogos fuera del panel, opciones ejecutables, pistas,
+tema claro fijo y traducciones ES/EN. `RecognitionPanel` coloca el nombre en primer
+lugar; la leyenda y las alternativas extensas están en el diálogo de Información.
+`AppTheme.kt` centraliza la paleta neutra y los colores auditados del Canvas.
+La Surface raíz establece tanto fondo como color de contenido; `values-v29` desactiva
+Force Dark sin exigir API 29 a los móviles con API 26.
+Se adapta de Converter la paleta clara, la política ES/EN y la separación de
 estado/UI; no se copia el banner animado ni se modifica el repositorio de referencia.
 El logo permanece byte por byte. SharedPreferences privado `chords.v1` conserva las
 claves JSON `prefs` y `stats` y los ajustes previos. Sin backup ni servicios externos.

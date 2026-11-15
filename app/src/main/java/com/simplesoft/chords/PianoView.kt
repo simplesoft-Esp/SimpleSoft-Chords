@@ -42,16 +42,16 @@ class PianoView(context:Context):View(context) {
    val noteFeedback=q?.note!=null && m.checked && m.marked==n
    val shown=(m.tool=="builder" && n in m.builderPosition?.notes.orEmpty()) || (m.reveal || m.hint>=4) && n in target || guideNote==n || (m.guide==q?.notes?.size && m.guide>=0 && n in target)
    paint.color=when {
-    correct || (noteFeedback && n==q?.note)->Color.rgb(38,119,76)
-    (m.tool=="practice" && n in m.selected) || n in m.played ->if(black)Color.rgb(25,74,150) else Color.rgb(66,153,235)
-    shown->Color.rgb(173,117,24)
-    held.values.any{it.first==n}->Color.rgb(42,99,153)
-    black->Color.rgb(30,34,39)
-    else->Color.rgb(249,249,246)
+    correct || (noteFeedback && n==q?.note)->PianoColors.correct
+    (m.tool=="practice" && n in m.selected) || n in m.played ->if(black)PianoColors.blackSelected else PianoColors.whiteSelected
+    shown->PianoColors.hint
+    held.values.any{it.first==n}->PianoColors.whiteSelected
+    black->PianoColors.blackKey
+    else->PianoColors.whiteKey
    }
    paint.style=Paint.Style.FILL;canvas.drawRect(r,paint)
    paint.style=Paint.Style.STROKE;paint.strokeWidth=2f;paint.color=Color.rgb(75,80,85);canvas.drawRect(r,paint);paint.style=Paint.Style.FILL
-   paint.color=if(black || correct || (m.tool=="practice" && n in m.selected) || n in m.played || shown)Color.WHITE else Color.rgb(30,34,39)
+   paint.color=if(black || correct || (m.tool=="practice" && n in m.selected) || n in m.played || shown)PianoColors.lightLabel else PianoColors.darkLabel
    paint.textAlign=Paint.Align.CENTER;paint.textSize=(width/15f*.24f).coerceIn(13f,30f)
    val mark=when {correct->"✓";shown->"★";(m.tool=="practice" && n in m.selected)->"●";else->""}
    if(mark.isNotEmpty())canvas.drawText(mark,r.centerX(),r.bottom-paint.textSize*2,paint)
