@@ -1,0 +1,12 @@
+{
+  "file": "SimpleSoft-Chords-0.2.0-debug-stabilized.apk",
+  "sha256": "643030d0d7fcd5551de8b97e286f97bddc045f3c726a47b94ef40c319c018733",
+  "sourceCommit": "1c3688191d5d94a53bc7dddbb6cf295703f5cfbc",
+  "pullRequest": "https://github.com/simplesoft-Esp/SimpleSoft-Chords/pull/1",
+  "versionName": "0.2.0",
+  "versionCode": 2,
+  "jvmTestsPassed": 22,
+  "assetTestsPassed": 6,
+  "instrumentedTestsCompiledNotRun": 7,
+  "physicalVerificationPending": true
+}
