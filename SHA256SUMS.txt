@@ -1,2 +1,3 @@
 932f3d0114c04056324fe6103ab071980b0294b274b8872b74822569e00e37bf  SimpleSoft-Chords-0.2.0-debug.apk
 643030d0d7fcd5551de8b97e286f97bddc045f3c726a47b94ef40c319c018733  SimpleSoft-Chords-0.2.0-debug-stabilized.apk
+e076dd734e6f49913f303b14c33c055e14217b8f020eff53865b90871080b36b  SimpleSoft-Chords-0.2.0-debug-usability.apk
