@@ -1,66 +1,82 @@
 # Guía de SimpleSoft-Chords 0.2.0
 
-Android 8 o superior, en horizontal. Todo funciona sin conexión, cuentas ni permisos.
-El piano fijo abarca Do3–Do5: 15 teclas blancas y 10 negras, sin ampliar el rango.
+Android 8 o superior. Funciona sin conexión ni cuentas. El tema siempre es claro.
+La distribución se adapta a vertical y horizontal; en móvil se recomienda horizontal
+para disponer de teclas más anchas. El piano siempre abarca Do3–Do5, sin zoom ni scroll
+horizontal. Menú abre Reconocimiento, Constructor, Aprendizaje, Ajustes, Información
+y Estadísticas; se conserva el logotipo oficial.
 
-La pantalla inicial es **Reconocer acordes**. **Menú**, en la cabecera, abre las otras
-herramientas, Estadísticas, Ajustes e Información y ayuda. El nombre del acorde aparece
-primero y en grande; la ayuda extensa no ocupa la zona principal.
+## Piano común
 
-## Herramientas
+Toca una nota para seleccionarla en azul. Vuelve a tocarla para deseleccionarla.
+Soltar un dedo detiene su sonido, pero no cambia la selección. Puedes construir
+un acorde con toques separados o simultáneos. Dos dedos sobre la misma nota comparten
+una voz y no alternan la selección dos veces. Deslizar cambia de tecla al superar
+el pequeño margen de movimiento; las teclas negras tienen prioridad en su área real.
+Las etiquetas se recortan a su tecla para no invadir las vecinas.
 
-**Reconocer acordes:** pulsa varias notas a la vez o añádelas manteniendo alguna
-pulsada. Las notas se oyen mientras las mantienes; al soltar todas, su resaltado
-azul y el análisis permanecen. El siguiente gesto inicia un acorde nuevo. Desliza
-un dedo para cambiar de tecla. Dos dedos sobre la misma nota comparten una voz.
-El análisis muestra notas reales, nombres posibles, fundamental, bajo e inversión
-(0 = estado fundamental). Las octavas duplicadas no cambian la identidad. Información y ayuda contiene las alternativas para conservar ambigüedades como Do6/La menor séptima. El orden favorece
-el estado fundamental, pero no representa una certeza tonal. En Información y ayuda, la leyenda explica
-las equivalencias de sostenidos y bemoles. Un conjunto fuera del catálogo se indica
-sin inventar un nombre.
+Las pulsaciones físicas y las notas seleccionadas son estados distintos: una tecla
+físicamente pulsada pero deseleccionada conserva solo el contorno. **Limpiar** borra
+todas las notas seleccionadas, también después de resolver o en Completar, retira
+pistas y aciertos del piano y detiene el sonido. Si había dedos apoyados, levántalos
+y vuelve a pulsar; los movimientos antiguos no vuelven a seleccionar notas.
+**Siguiente** inicia un ejercicio sin selección ni sonidos anteriores.
 
-**Constructor:** elige fundamental, tipo e inversión. Solo se ofrecen disposiciones
-completas que caben en Do3–Do5 y tienen el bajo solicitado. Las notas se marcan
-con estrellas y puedes escucharlas. Algunas inversiones de acordes extendidos no
-caben; se excluyen del menú. No se omiten notas para hacerlos caber.
+## Reconocimiento y constructor
 
-**Aprendizaje:** selecciona actividad, dificultad y contenido. Los niveles proponen
-mayor/menor, las cuatro tríadas y séptimas. Contenido permite filtros personalizados.
-Los filtros de blancas/octavas en Ajustes se aplican a las preguntas de notas sueltas;
-el teclado permanece siempre completo.
+Reconocimiento muestra primero el nombre grande, después las notas e inversión/bajo
+cuando corresponde. Se recalcula al añadir y al quitar notas; permanece al soltar.
+Para sustituir todo el acorde utiliza Limpiar, en vez de esperar a que otro gesto lo borre.
+Las duplicaciones en otras octavas no cambian la identidad; el bajo real determina
+la inversión. Información contiene la leyenda enarmónica y las interpretaciones
+alternativas: el orden de resultados no implica certeza tonal.
 
-## Cuatro actividades
+Constructor conserva fundamental, tipo e inversión, posiciones dentro del rango,
+notas de referencia doradas y reproducción. Las referencias no son notas seleccionadas
+azules. El piano utiliza el mismo comportamiento de selección y Limpiar.
 
-- Construir: toca las notas del acorde pedido. Cada toque selecciona o deselecciona
-  una nota; la selección permanece azul, aunque el sonido termine al soltar.
-- Identificar: lee las notas presentadas y selecciona el nombre completo.
-- Completar: una nota aparece seleccionada y no se puede quitar; añade las restantes.
-- Oído: escucha y selecciona la cualidad. Las opciones comparten fundamental y
-  registro, de modo que no se exige oído absoluto. Empieza por mayor frente a menor;
-  después compara disminuido, aumentado y séptimas. Repetir vuelve a reproducir.
+## Ajustes de aprendizaje
 
-En las cuatro actividades de acordes pulsa **Validar**. Una elección por sí sola
-no se evalúa. «Incorrecto» conserva la selección azul; no hay teclas rojas. Puedes
-reintentar o pedir pistas. Un acierto marca las notas en verde y bloquea la respuesta;
-pulsa **Siguiente** para avanzar. Nunca hay avance automático. También puedes saltar
-una pregunta con Siguiente. Limpiar conserva la nota proporcionada al completar.
+Abre Menú → Ajustes → Aprendizaje. Elige modo y actividad. Los acordes se agrupan
+por familias; puedes marcar cada tipo o toda su familia. Los accesos rápidos son:
+seleccionar todos, seleccionar básicos (mayor, menor, disminuido y aumentado) y
+desmarcar todos. Los cambios son un borrador hasta **Aplicar**; Cancelar los descarta.
+La selección vacía también se guarda, sin volver a activar acordes por defecto.
 
-La validación inicial compara clases de altura: acepta otras octavas, inversiones
-y duplicaciones, siempre que no falten ni sobren clases. En **Avanzado**, construir
-y completar indican explícitamente inversión y bajo requerido. Se exige esa clase
-de bajo, conservando libertad de octava y duplicaciones. No se exige una disposición
-exacta oculta. Si no hay preguntas o distractores válidos, amplía filtros con el botón
-propuesto o cambia a construir; con el contenido vacío debes ampliarlo primero.
+Otros filtros contiene Avanzado y los filtros de notas sueltas (blancas/cromáticas,
+una/dos octavas). Estos últimos limitan preguntas de notas, nunca el piano. Interfaz
+contiene idioma ES/EN, notación y etiquetas. Todos estos ajustes, incluido Avanzado,
+se conservan localmente. Los ajustes antiguos siguen siendo legibles.
+Para empezar el oído, selecciona mayor y menor; después amplía a otras tríadas o
+séptimas utilizando sus familias. No es necesario distinguir Do mayor de Re mayor
+por oído absoluto: los distractores comparten fundamental y registro.
 
-## Profesor, ajustes y privacidad
+## Práctica
 
-Pista progresa desde funciones a distancias, nombres y posiciones. Cómo se construye
-reproduce cada nota y luego el acorde completo, con función e intervalos. La tercera
-mayor tiene cuatro semitonos; la menor, tres. Una inversión cambia el bajo sin cambiar
-las clases de altura. Las ayudas se registran en las estadísticas de esa actividad.
+La pantalla muestra actividad, número de ejercicio y aciertos de la sesión, instrucción,
+respuestas cuando correspondan, Repetir, Pista, Validar, Limpiar, Siguiente y el piano.
+No hay controles de configuración ni explicaciones permanentes en esta pantalla.
+Si no se puede generar una pregunta válida, se explica y **Modificar filtros** abre Ajustes.
 
-Idioma español/inglés, notación Do–Si/C–B, etiquetas y filtros se guardan localmente,
-al igual que las estadísticas. El tema es siempre claro, con fondo blanco y texto oscuro, incluso si el sistema usa modo oscuro. No se transmiten datos.
-Los ajustes antiguos de 0.1.0 siguen siendo legibles. Herramienta, constructor y
-opción Avanzado son estado de sesión. El audio se detiene al salir o perder el foco.
-La latencia depende del dispositivo; consulta PRUEBAS.md antes de distribuir.
+- Construir: selecciona las notas del acorde pedido y pulsa Validar.
+- Identificar: lee las notas presentadas, elige el nombre y pulsa Validar.
+- Completar: la nota proporcionada aparece como referencia dorada y en la instrucción;
+  selecciona las notas restantes. Al validar se combina esa referencia con tu selección.
+  No hay ninguna nota azul obligatoria o protegida; Limpiar siempre vacía la selección.
+- Oído: Repetir reproduce el acorde. Elige su cualidad y pulsa Validar.
+
+Las preguntas de notas sueltas también se responden seleccionando y pulsando Validar.
+«Incorrecto» permite reintentar y mantiene azul, sin rojo. El acierto se muestra en
+verde; Siguiente es manual. Puedes seguir alternando notas o limpiar después de un
+acierto, sin contabilizar otro acierto para la misma pregunta.
+La validación básica acepta clases de altura correctas en otras octavas y duplicadas.
+Avanzado exige el bajo/inversión solo cuando la instrucción lo indica.
+
+Pista abre una explicación progresiva, sin desplazar la pantalla de práctica. Más
+conserva Escuchar selección, referencia Do4, Cómo se construye (guía paso a paso)
+y Ver solución. Las ayudas se registran en las estadísticas como antes. Las opciones
+por nombre quedan bloqueadas tras resolver hasta Siguiente; limpiar siempre borra
+las notas del piano. No hay avance automático.
+
+El audio se detiene al salir/perder foco. La latencia, la comodidad y la visibilidad
+real en el A16 y tablets requieren comprobación física; consulta PRUEBAS.md.

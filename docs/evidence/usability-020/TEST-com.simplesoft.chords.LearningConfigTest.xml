@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.simplesoft.chords.LearningConfigTest" tests="8" skipped="0" failures="0" errors="0" timestamp="2026-11-15T11:33:58.306Z" hostname="408ae592d671" time="0.098">
+  <properties/>
+  <testcase name="jsonPersistencePreservesEmptyAndIndividualSelectionsAndFilters" classname="com.simplesoft.chords.LearningConfigTest" time="0.004"/>
+  <testcase name="individualAndFamilySelectionAreIndependent" classname="com.simplesoft.chords.LearningConfigTest" time="0.001"/>
+  <testcase name="generatorUsesOnlySelectedChordIdsAndAppliesChangesImmediately" classname="com.simplesoft.chords.LearningConfigTest" time="0.015"/>
+  <testcase name="impossibleEarFiltersExplainTheProblemWithoutLooping" classname="com.simplesoft.chords.LearningConfigTest" time="0.018"/>
+  <testcase name="completionReferenceIsNotALockedSelectedNote" classname="com.simplesoft.chords.LearningConfigTest" time="0.05"/>
+  <testcase name="noteFiltersDoNotShrinkThePiano" classname="com.simplesoft.chords.LearningConfigTest" time="0.004"/>
+  <testcase name="legacyPreferencesAndCorruptDataStayReadable" classname="com.simplesoft.chords.LearningConfigTest" time="0.003"/>
+  <testcase name="quickSelectionsContainExactlyTheIntendedTypes" classname="com.simplesoft.chords.LearningConfigTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

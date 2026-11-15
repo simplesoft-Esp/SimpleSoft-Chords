@@ -36,9 +36,9 @@ class Assets(unittest.TestCase):
    self.assertLess(abs(1200*math.log2((rate*40/frames)/target)),1)
    self.assertLess(max(map(abs,a))/32768*32*.1,1)
    self.assertEqual(a[0],0)
- def test_no_permissions_and_landscape(self):
+ def test_no_permissions_and_adaptive_orientation(self):
   root=ET.parse(R/'app/src/main/AndroidManifest.xml').getroot();self.assertEqual(root.findall('uses-permission'),[])
-  a=root.find('application/activity');self.assertEqual(a.attrib['{http://schemas.android.com/apk/res/android}screenOrientation'],'sensorLandscape')
+  a=root.find('application/activity');self.assertNotIn('{http://schemas.android.com/apk/res/android}screenOrientation',a.attrib)
  def test_reference_logo_is_exact(self):
   import hashlib
   self.assertEqual(hashlib.sha256((R/'app/src/main/res/drawable/simplesoft_logo.png').read_bytes()).hexdigest(),'fb4f6a6f55e89f192aa1a0a1147340d0ecaf68745ef6300927f8e139f423cffc')

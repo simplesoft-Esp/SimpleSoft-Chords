@@ -1,60 +1,61 @@
 # Arquitectura Android 0.2.0 y futura web
 
-`shared/catalog.json` conserva sus 37 fórmulas y versión de datos 0.1.0; la aplicación
-es 0.2.0/versionCode 2. No se confunden versión de datos y versión de producto.
-`Position` añade inversión (0 por defecto) y notas MIDI ordenadas. `Harmony` distingue
-clases de altura, bajo, disposición y coincidencias múltiples. `Answers.exact` sigue
-existiendo para contratos históricos de disposición exacta; el aprendizaje usa
-`Harmony.accepts`, comparando clases y, solo cuando se anuncia, el bajo.
+El catálogo conserva sus 37 fórmulas y versión de datos 0.1.0. El producto sigue en
+0.2.0/versionCode 2. `Position` representa raíz, inversión y MIDI real; `Harmony`
+reconoce por clases de altura y conserva el bajo/alternativas. La validación inicial
+acepta duplicaciones y octavas; el bajo se exige solo si se anuncia. `Answers.exact`
+se mantiene para los contratos históricos de disposición exacta.
 
-`Harmony.voicings` filtra registro, número de clases e inversión real. Eleva por octavas las notas anteriores hasta superar el bajo solicitado,
-y permite una fundamental teórica fuera del registro si todas las notas reales caben.
-No pliega extensiones arbitrariamente. `recognize` prueba cada raíz y fórmula, conserva todas
-las coincidencias exactas de clases y calcula el bajo del MIDI mínimo. El orden
-prioriza estado fundamental y fórmulas compactas, sin asignar probabilidades.
+## Estado compartido del piano
 
-`RecognitionState` contiene las notas observables del gesto y el recuento por nota de
-punteros activos. Su resultado se calcula a partir del conjunto observable; soltar el
-último dedo conserva el acorde y el siguiente gesto lo sustituye. Lo usan el modelo
-Android y las pruebas JVM. `Position.displayName` comparte el formateo probado con la UI.
+`PianoState` sustituye RecognitionState y las dos selecciones antes superpuestas.
+`selected` es el único conjunto que se pinta azul en cualquier herramienta.
+`pressed` mapea identificadores de dedo a MIDI y no determina la selección.
+`down` alterna solo la primera pulsación física de una nota; `up` retira el dedo,
+sin borrar la selección. Reconocimiento deriva de selected, incluso al quitar notas.
+No se limpia automáticamente al empezar otro gesto.
 
-`TrainingModel` administra preguntas, selección persistente, respuesta pendiente,
-resolución, pistas, preferencias y estadísticas. Construir/completar validan con botón;
-identificar/oído guardan la opción hasta Validar. La nota de completar es inmutable.
-Oído usa distractores de otra cualidad con la misma fundamental y registro. Se filtran
-preguntas auditivas que carezcan de alternativas; si no queda ninguna se explica.
-Los tres niveles son preselecciones de filtros, no una evaluación automática del alumno.
-El modo mixto histórico alterna construir y oído. Las preguntas de notas sueltas
-mantienen su comportamiento anterior, fuera de las cuatro actividades de acordes.
+Limpiar y Siguiente vacían selected/pressed e incrementan generation. Los eventos
+con token anterior se ignoran: un key-up viejo no libera el dedo del ejercicio nuevo.
+PianoView sincroniza generation también antes de procesar MotionEvent, para no depender
+de que Compose ya haya recompuesto; retira las voces/admisiones anteriores y no admite
+MOVE hasta una nueva pulsación. Un cambio de tamaño libera punteros conservando selección.
+Dos dedos sobre una nota comparten stream, liberado por el último. No hay color azul
+alternativo por notas históricas; pulsación física sin selección solo marca contorno.
 
-`PianoView` realiza hit testing de negras primero, multitáctil, cambios de nota al
-arrastrar, liberación al cancelar/perder foco/desconectar y nodos de accesibilidad.
-Dos dedos sobre una tecla comparten stream; solo el último al soltar lo libera.
-`played` representa el último gesto para reconocimiento; `selected` representa la
-respuesta por toques de construir/completar. El sonido no depende del resaltado.
-Al cambiar de pregunta o herramienta, la vista libera los punteros anteriores.
+`PianoGeometry` comparte dibujo/hit testing, negras primero en sus límites reales.
+Las negras usan 0,66 de ancho de blanca y 0,62 de altura; no se agrandan áreas invisibles
+sobre teclas vecinas. Touch slop filtra el pequeño temblor al deslizar; etiquetas
+recortadas a cada tecla y tamaño adaptado. El piano utiliza todo el ancho seguro.
+`PianoAudio` no cambia: SoundPool, hasta 32 voces, WAV/bucles originales, foco y liberación.
 
-`PianoAudio`: SoundPool de hasta 32 voces, 25 muestras originales de 2,3 s para
-preescucha y 25 bucles periódicos originales para pulsaciones sostenidas. Liberación
-de 90 ms y cancelación de callbacks mediante epoch al detener; pérdida de foco y
-pausa liberan audio. No hay micrófono ni red. La vía SoundPool precargada está pensada
-para baja latencia; su latencia real requiere medición en un dispositivo.
+## Aprendizaje, persistencia e interfaz
 
-`MainActivity`: Compose, panel superior desplazable y piano fijo al 50%, menú de herramientas y diálogos fuera del panel, opciones ejecutables, pistas,
-tema claro fijo y traducciones ES/EN. `RecognitionPanel` coloca el nombre en primer
-lugar; la leyenda y las alternativas extensas están en el diálogo de Información.
-`AppTheme.kt` centraliza la paleta neutra y los colores auditados del Canvas.
-La Surface raíz establece tanto fondo como color de contenido; `values-v29` desactiva
-Force Dark sin exigir API 29 a los móviles con API 26.
-Se adapta de Converter la paleta clara, la política ES/EN y la separación de
-estado/UI; no se copia el banner animado ni se modifica el repositorio de referencia.
-El logo permanece byte por byte. SharedPreferences privado `chords.v1` conserva las
-claves JSON `prefs` y `stats` y los ajustes previos. Sin backup ni servicios externos.
+`ExerciseGenerator` comparte con pruebas JVM la selección de preguntas y distractores.
+Solo usa los IDs guardados. Explica filtros sin candidatos; el modo mixto con una sola
+cualidad permite construir. Las referencias de completar están en Question.given,
+no en selected: al validar se compara selected+given. Limpiar no exceptúa ninguna tecla.
 
-Para una futura web, reutilizar catálogo, traducciones, fórmulas, logo autorizado y WAV.
-Portar `Harmony` a TypeScript y cubrir inversiones, bajo, duplicaciones y ambigüedades
-con los mismos ejemplos. Los contratos `shared/examples.json` siguen describiendo
-validación MIDI exacta histórica; no sustituyen las pruebas nuevas de aprendizaje.
-Usar Web Audio con fuentes precargadas, bucles, envolventes y cancelación al perder
-visibilidad; Pointer Events con captura y cancelación. La UI Compose y el almacenamiento
-Android necesitan adaptadores propios. No se ha construido ni publicado una web.
+`LearningConfig.kt` contiene Prefs, ChordSelection y PrefsCodec. Se conserva el formato
+JSON v1 en SharedPreferences privado `chords.v1`: claves prefs y stats. advanced pasa
+a ser un campo persistente con false de respaldo; una selección IDs vacía se conserva.
+Ajustes usa borrador local y solo Aplicar persiste/genera otra pregunta. Cancelar no escribe.
+Familias e individuales comparten los mismos IDs; básicos son las cuatro tríadas.
+No se crean catálogos, modos ni servicios nuevos. Estadísticas previas siguen legibles.
+
+`TrainingModel` coordina piano, audio, preguntas, intentos, ayudas y estadísticas.
+El número de ejercicio y aciertos de sesión son progreso de sesión, sin objetivo finito
+inventado. La puntuación solo cuenta una resolución por pregunta. Validar es explícito,
+incluidas notas sueltas. Modificar teclas/limpiar no queda bloqueado al resolver.
+
+`MainActivity` conserva menú fijo y reserva espacio de controles/feedback antes de
+asignar altura al piano. PracticePanel no tiene scroll: ejercicio/progreso, instrucción,
+opciones y FlowRow de acciones de al menos 48 dp. Filtrado/configuración solo en Ajustes;
+Pista/guía/solución en diálogo y acciones secundarias en Más. Constructor/reconocimiento,
+ajustes e información sí pueden desplazar su contenido secundario.
+No se fuerza orientación: constraints y fontScale adaptan alturas, ancho y filas.
+`AppTheme.kt` conserva paleta clara, Surface con contenido oscuro y logo intacto.
+
+Para futura web: portar selección, punteros, generation, fórmulas y generador con estas
+regresiones; adaptar Web Audio, Pointer Events, persistencia y UI. JSON, WAV y marca
+con sus licencias siguen reutilizables. No se construye ni publica una web aquí.

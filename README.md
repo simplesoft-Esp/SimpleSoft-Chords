@@ -1,13 +1,13 @@
 # SimpleSoft-Chords — Android 0.2.0
 
 Versión 0.2.0, versionCode 2, com.simplesoft.chords. Android 8/API 26 o superior.
-Kotlin + Jetpack Compose, horizontal, 100% offline. Sin cuentas, anuncios ni permisos.
+Kotlin + Jetpack Compose, distribución adaptable a vertical y horizontal, 100% offline. Sin cuentas, anuncios ni permisos.
 37 tipos de acordes y conjuntos de dos notas, 472 posiciones fundamentales más inversiones ejecutables; piano fijo Do3–Do5.
 
 Reconocimiento automático con alternativas e inversiones, constructor y cuatro actividades:
 construir, identificar, completar y oído por cualidades. Validación explícita, aciertos
-en verde, errores en azul, avance manual y pistas. Tres niveles: mayor/menor, tríadas
-y séptimas. El nivel avanzado solicita el bajo expresamente. Tema claro fijo, con fondos blancos y texto oscuro.
+en verde, errores en azul, avance manual y pistas. Selección individual de acordes agrupados por familias, con accesos todos/básicos/ninguno.
+El filtro avanzado solicita el bajo expresamente. Tema claro fijo, con fondos blancos y texto oscuro.
 
 ## Abrir y compilar en Windows
 
@@ -73,14 +73,22 @@ El timbre incluido es piano sintetizado original; no son muestras acústicas.
 La interacción, latencia, accesibilidad y apariencia real deben revisarse en el teléfono.
 No hay capturas reales si no figura una ejecución en el informe de pruebas.
 
-## Estabilización tras la prueba en Galaxy A16
+## Usabilidad y estabilización 0.2.0
 
-La pantalla inicial es reconocimiento: nombre grande, notas e inversión sobre el piano.
-Menú da acceso al constructor, aprendizaje, estadísticas, ajustes e Información y ayuda.
-La leyenda enarmónica y las alternativas detalladas ya no desplazan el nombre del acorde.
-La versión sigue siendo 0.2.0/versionCode 2; la APK corregida usa la misma firma debug.
-Consultar `docs/ESTABILIZACION_020.md` para diagnóstico y `docs/PRUEBAS.md` para evidencia,
-pruebas ejecutadas y pruebas instrumentadas/físicas pendientes.
+Piano común con selección por conmutación: tocar añade/quita una nota; soltar termina
+el sonido y conserva la selección. Limpiar elimina toda selección y cancela el gesto
+activo. Cada ejercicio empieza sin notas seleccionadas. La referencia de Completar
+se presenta como instrucción dorada, no como una selección protegida.
+
+Aprendizaje muestra ejercicio/progreso, instrucción, respuestas y acciones esenciales
+sin contenedor de desplazamiento vertical. Ajustes organiza actividad, acordes por
+familias, selección todos/básicos/ninguno y filtros secundarios, con Aplicar/Cancelar.
+Más y Pista conservan las ayudas educativas sin explicaciones permanentes en práctica.
+La distribución y el piano aprovechan el espacio disponible en ambas orientaciones.
+
+Versión 0.2.0/versionCode 2, misma firma debug que las APK anteriores. Ver
+`docs/USABILIDAD_020.md` y `docs/PRUEBAS.md` para comportamiento, evidencia automatizada
+y comprobaciones pendientes en dispositivo. No se declara estable en hardware aún.
 
 ## Referencia SimpleSoft Converter
 

@@ -1,0 +1,2 @@
+Same signer as previous 0.2.0 debug APK: true
+Signer #1 certificate SHA-256 digest: d54ef6a9c0dfb2ab33be68cf5cd5ef67b59d26aeba5bc4bdc1a7e4cea28be4f4

@@ -1,4 +1,7 @@
-# Estabilización 0.2.0 tras la prueba en Samsung Galaxy A16
+# Estabilización inicial 0.2.0 tras la prueba en Samsung Galaxy A16
+
+Informe histórico anterior a la revisión de usabilidad. El comportamiento de selección
+y navegación vigente se documenta en USABILIDAD_020.md y GUIA_ES.md.
 
 ## Diagnóstico
 

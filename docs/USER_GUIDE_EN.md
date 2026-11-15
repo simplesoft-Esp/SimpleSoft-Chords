@@ -1,44 +1,46 @@
 # SimpleSoft-Chords 0.2.0 user guide
 
-Android 8+, landscape, fully offline. The fixed C3–C5 piano supports multiple fingers.
-Notes sustain while held and release when lifted. Slide to another key; two fingers
-on one key share a voice. Audio stops when the app loses focus.
+Android 8+, offline, no accounts, fixed light theme. Layout adapts to portrait and
+landscape. Landscape gives wider keys on phones. The full C3–C5 piano always uses
+the available width; there is no zoom or horizontal scrolling. Menu opens recognition,
+builder, practice, settings, information and statistics.
 
-Recognition is the initial workspace. The chord name is shown first in large type.
-Menu in the header opens the builder, practice, statistics, settings and Information
-and help. Enharmonic explanations and full alternatives are inside Information.
+Tap a key to select it in blue; tap again to deselect. Key-up stops audio but keeps
+selection. Separate and simultaneous taps use the same behavior in every workspace.
+Two fingers on one key share one voice and toggle only once. Physical key state is
+independent: a held but deselected key uses an outline. Clear removes every selected
+note, including after success and in Complete, clears feedback/hints and stops audio.
+Lift any held fingers before playing again; old movement events are ignored. Each
+new exercise starts with no selected notes.
 
-Choose a workspace:
+Recognition updates on both adding and removing notes and stays after release.
+Use Clear to replace the entire chord; a new gesture no longer clears automatically.
+The large name, pitches and inversion/bass remain primary. Enharmonic explanations
+and full alternatives are in Information. Octave doubles do not change identity.
+Builder preserves root, quality, inversion, playable voicings and playback. Gold
+reference keys are instructions, separate from blue user selection.
 
-- Recognize chords: play overlapping notes. The last gesture remains blue after
-  release; a new gesture clears it. Analysis lists actual pitches, possible roots,
-  qualities, bass and inversion (0 means root position). Octave doubles do not change
-  identity. Ambiguous sets retain alternatives; the first match is not tonal certainty.
-  A legend explains enharmonic sharp/flat names. Unknown sets are reported honestly.
-- Chord builder: choose root, quality and inversion. Only complete voicings fitting
-  the fixed two octaves appear. Stars show the proposed keys. Press Repeat to listen.
-- Practice: choose Build, Identify, Complete or Ear. Levels progress from major/minor
-  through major/minor/diminished/augmented triads to sevenths. Content offers custom filters.
+Menu → Settings → Learning contains mode, activity and chord filters by family,
+with individual selection and All / Basics / None shortcuts. Basics selects major,
+minor, diminished and augmented. Apply saves the draft locally; Cancel discards it.
+An empty selection remains empty. Other filters contains Advanced, white/chromatic
+single-note questions and their octave range; these never shrink the piano. Display
+contains language, notation and labels. Advanced is now also persisted. Legacy prefs
+remain readable. Start ear practice with major/minor, then expand by family.
 
-Build: tap to toggle selected notes. Selection stays blue when released, but audio stops.
-Identify: read the displayed pitches and choose the chord name.
-Complete: keep the supplied fixed note and add the missing pitches.
-Ear: listen and choose quality. All options share the root and register, so the task
-never depends on distinguishing C major from D major by absolute pitch.
+Practice keeps the activity and exercise/session progress, instruction, answer choices,
+Repeat, Hint, Validate, Clear, Next and the piano visible, without a vertical scroll
+container or configuration controls. Invalid filters show an explanation and Edit filters.
 
-Press Validate to check any chord activity. An incorrect answer says Incorrect and
-keeps blue keys without red. Retry or ask for hints. Correct answers show green keys
-and remain until you manually press Next. Clear preserves the supplied completion note.
-At beginner level, octave changes, inversions and valid doubles are accepted.
-Advanced build/complete explicitly requests an inversion and bass pitch class;
-only then must the bass match. No hidden exact voicing is required.
-If filters cannot produce a valid question or distractor, broaden them using the
-provided action or choose another activity.
+Build selects chord notes. Identify chooses a name for written pitches. Complete shows
+a supplied pitch as a gold reference, not a protected blue selection; validation combines
+that reference with the notes you select. Ear compares qualities sharing root/register,
+without requiring absolute pitch. Single-note questions also use selection and Validate.
+Errors stay blue without red; success is green and Next remains manual. Octave changes
+and valid doubles are accepted; Advanced requires the bass only when explicitly stated.
+The piano remains editable after success without counting the same exercise twice.
 
-Hint progresses through functions, intervals, note names and highlighted keys.
-How it is built walks through individual notes and the full chord. Using help is
-recorded in local activity/family statistics. Preferences and progress stay on device.
-Spanish/English, note notation and labels are configurable; the theme stays light with white backgrounds and dark text, including in system night mode.
-White-key and octave filters affect single-note questions, never the fixed piano range.
-Version 0.1.0 preferences remain readable. Workspace, builder and Advanced are session state.
-See PRUEBAS.md for automated checks and the pending physical-device verification.
+Hint opens progressive explanations in a dialog. More keeps Play selection, C4 reference,
+How it is built (step-by-step guide) and Show solution. Answer choices lock after solving
+until Next; Clear always empties piano selection. Statistics and preferences stay on device.
+See PRUEBAS.md for automated checks and pending physical-device/layout/audio verification.

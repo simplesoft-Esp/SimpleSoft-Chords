@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.simplesoft.chords.PianoStateTest" tests="9" skipped="0" failures="0" errors="0" timestamp="2026-11-15T11:34:00.497Z" hostname="408ae592d671" time="0.051">
+  <properties/>
+  <testcase name="repeatTapTogglesAndReleaseDoesNotChangeSelection" classname="com.simplesoft.chords.PianoStateTest" time="0.002"/>
+  <testcase name="repeatedRapidExerciseChangesStayEmptyEvenForTheSameQuestion" classname="com.simplesoft.chords.PianoStateTest" time="0.006"/>
+  <testcase name="minorInversionsAndOctaveDoublingsUseSelectedMidi" classname="com.simplesoft.chords.PianoStateTest" time="0.007"/>
+  <testcase name="composeIsNotifiedOnBothAddAndRemove" classname="com.simplesoft.chords.PianoStateTest" time="0.021"/>
+  <testcase name="partialReleaseDoesNotChangeOtherFingersOrSelection" classname="com.simplesoft.chords.PianoStateTest" time="0.003"/>
+  <testcase name="simultaneousFingersOnSameKeyToggleOnlyOnce" classname="com.simplesoft.chords.PianoStateTest" time="0.002"/>
+  <testcase name="clearHasNoExceptionsIncludingBlackNotesAndBothOctaves" classname="com.simplesoft.chords.PianoStateTest" time="0.004"/>
+  <testcase name="staleMoveAndKeyUpCannotChangeTheNextExercise" classname="com.simplesoft.chords.PianoStateTest" time="0.001"/>
+  <testcase name="cMajorIsLiveLatchedAndChangesWhenANoteIsRemoved" classname="com.simplesoft.chords.PianoStateTest" time="0.003"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
