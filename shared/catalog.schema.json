@@ -1,0 +1,112 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:simplesoft:chords:catalog:1",
+  "title": "SimpleSoft Chords catalog v1",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "catalogVersion",
+    "midiMin",
+    "midiMax",
+    "tuningA4",
+    "types"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": 1
+    },
+    "catalogVersion": {
+      "type": "string",
+      "minLength": 1
+    },
+    "midiMin": {
+      "const": 48
+    },
+    "midiMax": {
+      "const": 72
+    },
+    "tuningA4": {
+      "const": 440
+    },
+    "types": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "family",
+          "names",
+          "symbol",
+          "semitones",
+          "degrees",
+          "aliases",
+          "explanationKey"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9-]*$"
+          },
+          "family": {
+            "type": "string",
+            "minLength": 1
+          },
+          "names": {
+            "type": "object",
+            "required": [
+              "es",
+              "en"
+            ],
+            "properties": {
+              "es": {
+                "type": "string",
+                "minLength": 1
+              },
+              "en": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "additionalProperties": false
+          },
+          "symbol": {
+            "type": "string"
+          },
+          "semitones": {
+            "type": "array",
+            "minItems": 2,
+            "uniqueItems": true,
+            "items": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 24
+            }
+          },
+          "degrees": {
+            "type": "array",
+            "minItems": 2,
+            "items": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 15
+            }
+          },
+          "aliases": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "explanationKey": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

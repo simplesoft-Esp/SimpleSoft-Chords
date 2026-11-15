@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:simplesoft:chords:i18n:1",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "es",
+    "en"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": 1
+    },
+    "es": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "en": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string",
+        "minLength": 1
+      }
+    }
+  },
+  "additionalProperties": false
+}

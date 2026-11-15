@@ -1,0 +1,197 @@
+{
+  "schemaVersion": 1,
+  "catalogVersion": "0.1.0",
+  "positionCases": [
+    {
+      "type": "minor",
+      "root": 50,
+      "notes": [
+        50,
+        53,
+        57
+      ],
+      "spellingsEn": [
+        "D3",
+        "F3",
+        "A3"
+      ]
+    },
+    {
+      "type": "dim7",
+      "root": 48,
+      "notes": [
+        48,
+        51,
+        54,
+        57
+      ],
+      "spellingsEn": [
+        "C3",
+        "E♭3",
+        "G♭3",
+        "B♭♭3"
+      ]
+    },
+    {
+      "type": "thirteen",
+      "root": 48,
+      "notes": [
+        48,
+        52,
+        55,
+        58,
+        62,
+        65,
+        69
+      ]
+    },
+    {
+      "type": "maj7",
+      "root": 54,
+      "notes": [
+        54,
+        58,
+        61,
+        65
+      ],
+      "spellingsEn": [
+        "F♯3",
+        "A♯3",
+        "C♯4",
+        "E♯4"
+      ]
+    }
+  ],
+  "validationCases": [
+    {
+      "type": "minor",
+      "root": 50,
+      "selected": [
+        50,
+        53,
+        57
+      ],
+      "correct": true
+    },
+    {
+      "type": "minor",
+      "root": 50,
+      "selected": [
+        50,
+        53
+      ],
+      "correct": false
+    },
+    {
+      "type": "minor",
+      "root": 50,
+      "selected": [
+        50,
+        53,
+        57,
+        69
+      ],
+      "correct": false
+    },
+    {
+      "type": "minor",
+      "root": 50,
+      "selected": [
+        62,
+        65,
+        69
+      ],
+      "correct": false
+    }
+  ],
+  "invalidPositionCases": [
+    {
+      "type": "thirteen",
+      "root": 52,
+      "reason": "max MIDI 73 exceeds 72"
+    },
+    {
+      "type": "add9",
+      "root": 60,
+      "reason": "max MIDI 74 exceeds 72"
+    }
+  ],
+  "noteFilterCases": [
+    {
+      "white": true,
+      "twoOctaves": false,
+      "notes": [
+        48,
+        50,
+        52,
+        53,
+        55,
+        57,
+        59
+      ]
+    },
+    {
+      "white": false,
+      "twoOctaves": false,
+      "notes": [
+        48,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        57,
+        58,
+        59
+      ]
+    },
+    {
+      "white": true,
+      "twoOctaves": true,
+      "notes": [
+        48,
+        50,
+        52,
+        53,
+        55,
+        57,
+        59,
+        60,
+        62,
+        64,
+        65,
+        67,
+        69,
+        71,
+        72
+      ]
+    }
+  ],
+  "equivalentSoundCases": [
+    {
+      "a": {
+        "type": "sus2",
+        "root": 48
+      },
+      "b": {
+        "type": "sus4",
+        "root": 55
+      },
+      "samePitchClasses": true
+    },
+    {
+      "a": {
+        "type": "aug",
+        "root": 48
+      },
+      "b": {
+        "type": "aug",
+        "root": 52
+      },
+      "samePitchClasses": true
+    }
+  ]
+}

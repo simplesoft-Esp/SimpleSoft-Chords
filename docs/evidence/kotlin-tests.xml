@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.simplesoft.chords.MusicTest" tests="7" skipped="0" failures="0" errors="0" timestamp="2026-11-14T22:23:18.092Z" hostname="6f118dce8e66" time="0.831">
+  <properties/>
+  <testcase name="goldenMusicalExamples" classname="com.simplesoft.chords.MusicTest" time="0.084"/>
+  <testcase name="allPositionsAreUnalteredRootPosition" classname="com.simplesoft.chords.MusicTest" time="0.02"/>
+  <testcase name="noteFiltersKeepPianoRangeButRestrictQuestions" classname="com.simplesoft.chords.MusicTest" time="0.005"/>
+  <testcase name="choicesHaveNoEquivalentDistractors" classname="com.simplesoft.chords.MusicTest" time="0.709"/>
+  <testcase name="exactValidationRejectsOctaveDoublingAndOmissions" classname="com.simplesoft.chords.MusicTest" time="0.003"/>
+  <testcase name="restrictiveFiltersAndBagsDoNotHang" classname="com.simplesoft.chords.MusicTest" time="0.003"/>
+  <testcase name="sharedWebExamplesMatchAndroidLogic" classname="com.simplesoft.chords.MusicTest" time="0.003"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
